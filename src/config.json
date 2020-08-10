@@ -1,3 +1,13 @@
 {
-    "prefix": "!"
+    "prefix": "!",
+    "info": {
+        "name": "DoggoBot",
+        "url": "https://github.com/MixusMinimax/ts-doggo-bot",
+        "author": {
+            "name": "Maxi Barmetler",
+            "icon": "https://avatars1.githubusercontent.com/u/30178185",
+            "url": "https://barmetler.com"
+        },
+        "description": "A simple bot with not much unctionality (yet!)"
+    }
 }

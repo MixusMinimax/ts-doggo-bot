@@ -117,25 +117,17 @@ client.on('message', async (message) => {
             const time = `${today.getHours()}:${today.getMinutes()}`;
             return message.channel.send(`The current time is: ${time} on ${date}`);
         case 'info':
-            return message.channel.send(package_json_1.default.name + ' V' + package_json_1.default.version
-                + '\n' + package_json_1.default.description);
+            const embed = new discord_js_1.MessageEmbed()
+                .setColor('#0099ff')
+                .setTitle(config_json_1.default.info.name)
+                .setURL(config_json_1.default.info.url)
+                .setAuthor(config_json_1.default.info.author.name, config_json_1.default.info.author.icon, config_json_1.default.info.author.url)
+                .setDescription(config_json_1.default.info.description)
+                .addField('Version', package_json_1.default.version)
+                .setImage('https://cdn.discordapp.com/avatars/642869958635683851/780e2ba65003b8f8538c93bf7d8d431b.png?size=128')
+                .setTimestamp();
+            return message.channel.send(embed);
         case 'links':
-            /*
-            pool.query(`SELECT * FROM links WHERE guild = ${message.guild.id} AND channel = ${message.channel.id} ORDER BY line_id`, (err, rows) => {
-                if (err)
-                    throw err;
-
-                sMessage = "No links for this channel";
-
-                if (rows.length > 0) {
-                    sMessage = `Links for channel ${message.channel}\n`;
-                    sMessage += rows.map(row => "> `[" + ("0000" + row.line_id).slice(-2) + "]` " + row.line).join("\n");
-                }
-
-                if (sMessage && sMessage.length > 0)
-                    message.channel.send(sMessage);
-            });
-            */
             return message.reply("I don't handle links anymore!\nUse `$links` to access links.\nType `$man links` to learn more!");
         case "linkremove":
             return message.reply("This functionality has been moved to PythonBot!");

@@ -1,5 +1,5 @@
 import "discord.js"
-import { Client } from "discord.js"
+import { Client, MessageEmbed } from "discord.js"
 import fs from "fs"
 import path from "path"
 import { exit } from "process"
@@ -124,26 +124,18 @@ client.on('message', async message => {
             return message.channel.send(`The current time is: ${time} on ${date}`)
 
         case 'info':
-            return message.channel.send(package_json.name + ' V' + package_json.version
-                + '\n' + package_json.description)
+            const embed = new MessageEmbed()
+                .setColor('#0099ff')
+                .setTitle(config.info.name)
+                .setURL(config.info.url)
+                .setAuthor(config.info.author.name, config.info.author.icon, config.info.author.url)
+                .setDescription(config.info.description)
+                .addField('Version', package_json.version)
+                .setImage('https://cdn.discordapp.com/avatars/642869958635683851/780e2ba65003b8f8538c93bf7d8d431b.png?size=128')
+                .setTimestamp()
+            return message.channel.send(embed)
 
         case 'links':
-			/*
-			pool.query(`SELECT * FROM links WHERE guild = ${message.guild.id} AND channel = ${message.channel.id} ORDER BY line_id`, (err, rows) => {
-				if (err)
-					throw err;
-
-				sMessage = "No links for this channel";
-
-				if (rows.length > 0) {
-					sMessage = `Links for channel ${message.channel}\n`;
-					sMessage += rows.map(row => "> `[" + ("0000" + row.line_id).slice(-2) + "]` " + row.line).join("\n");
-				}
-
-				if (sMessage && sMessage.length > 0)
-					message.channel.send(sMessage);
-			});
-			*/
             return message.reply("I don't handle links anymore!\nUse `$links` to access links.\nType `$man links` to learn more!")
 
         case "linkremove":
