@@ -1,70 +1,49 @@
-import argparse from 'argparse';
+import Links from '../database/models/links.model';
+import { reply } from '../tools/stringTools';
 import ThrowingArgumentParser from '../tools/throwingArgparse';
-import { Indexable, ISimpleMessage } from '../tools/types';
-import { Handler } from './handler.type';
+import { ISimpleMessage } from '../tools/types';
+import { HandlerOptions, ParentHandler, SubHandler } from './handler.type';
+import config from '../../config/config.json'
 
-interface IndexableSubHandlers extends Indexable<Handler> {
-    list: LinksListHandler
-}
+export class LinksHandler extends ParentHandler {
 
-export class LinksHandler extends Handler {
-
-    subHandlers: IndexableSubHandlers = {
-        list: new LinksListHandler('list')
-    }
-
-    async execute(args: any, body: string, context: ISimpleMessage): Promise<void | string> {
-        const tokens = (args.command && args.command.length > 0 && args.command) || ['list']
-        const command = tokens[0]
-
-        return command
-    }
-
-    get parser() {
-        const _parser = new ThrowingArgumentParser({
-            prog: 'links',
+    constructor(prog: string) {
+        super(prog, {
+            list: new LinksListHandler(prog, 'list')
+        }, {
+            defaultSubCommand: 'list',
             description: 'Manage Links for Channel!',
             usage: [
-                'links <command> [<args>]',
+                config.prefix + 'links <command> [<args>]',
                 '',
                 '  list      List links of current channel.',
                 '  add       Add links to current channel.',
                 '  remove    Remove links from current channel'
             ].join('\n')
         })
-        _parser.addArgument('command', {
-            help: 'Subcommand to run',
-            nargs: argparse.Const.REMAINDER,
-            choices: Object.keys(this.subHandlers)
-        })
-        console.log(argparse.Const.REMAINDER)
-
-        return _parser
-    }
-
-    formatHelp(args?: any): string {
-        const subCommand = args?.command?.join(' ')
-        if (subCommand) {
-            const subHandler = this.subHandlers[subCommand]
-            if (subHandler) {
-                return subHandler.formatHelp(args)
-            } else {
-                return `Invalid command: ${subCommand}`
-            }
-        } else {
-            return super.formatHelp()
-        }
     }
 }
 
-class LinksListHandler extends Handler {
+class LinksListHandler extends SubHandler {
 
-    async execute(args: any, body: string, context: ISimpleMessage): Promise<void> {
-
+    async execute(_args: any, _body: string, message: ISimpleMessage, _options: HandlerOptions = {}): Promise<string> {
+        if (!message.guild) {
+            throw new Error('No Guild')
+        }
+        const lines: string[] = (await Links.findOneOrCreate(message.guild.id, message.channel.id)).lines
+        if (lines.length == 0) {
+            return reply(message.author, `\n> No Links for channel <#${message.channel.id}>`)
+        } else {
+            return ([
+                `\n> Links for channel <#${message.channel.id}>:`,
+                lines.map((line, index) => `\`[${index.toString().padStart(2, '0')}]\` ${line}`).join('\n')
+            ].join('\n'))
+        }
     }
 
     get parser() {
         const _parser = new ThrowingArgumentParser({
+            prog: this.prog + ' ' + this.sub,
             description: 'Manage Links for Channel!'
         })
 

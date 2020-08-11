@@ -116,7 +116,7 @@ client.on('message', async message => {
             message.channel.send(sayMessage)
             break
 
-        case 'help':
+        case 'helpOld':
             message.channel.send(fs.readFileSync('./assets/help.txt').toString())
             break
 
@@ -138,22 +138,6 @@ client.on('message', async message => {
                 .setTimestamp()
             return message.channel.send(embed)
 
-        case 'linksold':
-            const lines: string[] = (await Links.findOneOrCreate(message.guild.id, message.channel.id)).lines
-            if (lines.length == 0) {
-                return message.reply([
-                    `\n> No Links for channel <#${message.channel.id}>`
-                ].join('\n'))
-            } else {
-                return message.reply([
-                    `\n> Links for channel <#${message.channel.id}>:`,
-                    lines.map((line, index) => `\`[${index.toString().padStart(2, '0')}]\` ${line}`).join('\n')
-                ].join('\n'))
-            }
-
-        case "linkremove":
-            return message.reply("This functionality has been moved to PythonBot!")
-
         case "purge":
             // This command removes all messages from all users in the channel, up to 100.
 
@@ -170,7 +154,7 @@ client.on('message', async message => {
                 .catch(error => message.reply(`Couldn't delete messages because of: ${error}`))
 
         default:
-            const result = await handler.handle(message)
+            const result = await handler.handleMessage(message)
 
             if (result) {
                 return message.channel.send(result)

@@ -1,43 +1,45 @@
 import { Message } from 'discord.js';
 import config from '../../config/config.json';
 import parseMessage from '../tools/messageParser';
-import { Indexable, PermissionLevelException } from '../tools/types';
+import { Indexable, PermissionLevelException, ISimpleMessage } from '../tools/types';
 import { Handler } from './handler.type';
 import { LinksHandler } from './linksHandler';
+import { HelpHandler } from './helpHandler';
 
 interface IndexableHandlers extends Indexable<Handler> {
     links: LinksHandler
 }
 
-export var handlers: IndexableHandlers = {
+export const handlers: IndexableHandlers = {
+    help: new HelpHandler('help'),
     links: new LinksHandler('links')
 }
 
-export const handle = async function (message: Message): Promise<string | undefined> {
-    if (!message || !message.guild || !message.channel) {
-        throw new Error('Invalid message!')
-    }
-
-    const parsed = parseMessage(message)
-
-    if (!parsed.isCommand) return
-
-    const cmd: string | undefined = parsed.tokens.shift()
+export const handle = async function (tokens: string[], body: string, message: ISimpleMessage): Promise<string | undefined> {
+    const cmd: string | undefined = tokens.shift()
 
     if (cmd) {
         const handler: Handler = handlers[cmd]
         if (handler) {
             try {
-                const args = handler.parser.parseKnownArgs(parsed.tokens)
+                const args = handler.parser.parseKnownArgs(tokens)
 
                 console.log(args)
+
+                if (args[0].help && args[0].command?.[0]) {
+                    args[0].help = false
+                    args[0].command.splice(1, 0, '-h')
+                }
 
                 if (args[0].help) {
                     return `<@${message.author.id}>\n`
                         + `> Help for the command \`${config.prefix}${cmd}\`:\n`
                         + '```\n' + handler.formatHelp(args[0]) + '\n```'
                 } else {
-                    return (await handler.execute(args[0], parsed.body, message)) || undefined
+                    return (await handler.execute(args[0], body, message, {
+                        handlers,
+                        handle
+                    })) || undefined
                 }
 
             } catch (error) {
@@ -50,9 +52,21 @@ export const handle = async function (message: Message): Promise<string | undefi
                 }
             }
         } else {
-            return `> Command not found: ${cmd}`
+            return `> Command not found: \`${config.prefix}${cmd}\``
         }
     } else {
         return '> No command supplied!'
     }
+}
+
+export const handleMessage = async function (message: Message): Promise<string | undefined> {
+    if (!message || !message.guild || !message.channel) {
+        throw new Error('Invalid message!')
+    }
+
+    const parsed = parseMessage(message)
+
+    if (!parsed.isCommand) return
+
+    return await handle(parsed.tokens, parsed.body, message)
 }
