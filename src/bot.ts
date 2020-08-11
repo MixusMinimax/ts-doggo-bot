@@ -1,12 +1,15 @@
 import "discord.js"
-import { Client, MessageEmbed } from "discord.js"
-import fs from "fs"
-import path from "path"
-import { exit } from "process"
+import { Client, MessageEmbed } from 'discord.js'
+import fs from 'fs'
+import path from 'path'
+import { exit } from 'process'
 import package_json from '../package.json'
-import config from "./config.json"
+import config from '../config/config.json'
+import * as database from './database/database'
+import Links from './database/models/links.model'
+import * as handler from './handlers/handler'
 
-const doggoPath = path.join(__dirname, './images/doggos');
+const doggoPath = path.join(__dirname, '../assets/images/doggos');
 const mods = ["Administrator", "Admin", "Moderator"];
 
 const client = new Client();
@@ -99,7 +102,7 @@ client.on('message', async message => {
             // The second ping is an average latency between the bot and the websocket server (one-way, not round-trip)
             message.channel.send('Pinging...').then(m => {
                 var ping = m.createdTimestamp - message.createdTimestamp
-                m.edit(`**Pong!** API latency: ${ping}ms`)
+                m.edit(`**Pong!** API latency: \`${ping}ms\``)
             });
             break;
 
@@ -114,7 +117,7 @@ client.on('message', async message => {
             break
 
         case 'help':
-            message.channel.send(fs.readFileSync('help.txt').toString())
+            message.channel.send(fs.readFileSync('./assets/help.txt').toString())
             break
 
         case 'time':
@@ -129,14 +132,24 @@ client.on('message', async message => {
                 .setTitle(config.info.name)
                 .setURL(config.info.url)
                 .setAuthor(config.info.author.name, config.info.author.icon, config.info.author.url)
-                .setDescription(config.info.description)
-                .addField('Version', package_json.version)
+                .setDescription(`Version ${package_json.version}`)
+                .addField('Description', config.info.description)
                 .setImage('https://cdn.discordapp.com/avatars/642869958635683851/780e2ba65003b8f8538c93bf7d8d431b.png?size=128')
                 .setTimestamp()
             return message.channel.send(embed)
 
-        case 'links':
-            return message.reply("I don't handle links anymore!\nUse `$links` to access links.\nType `$man links` to learn more!")
+        case 'linksold':
+            const lines: string[] = (await Links.findOneOrCreate(message.guild.id, message.channel.id)).lines
+            if (lines.length == 0) {
+                return message.reply([
+                    `\n> No Links for channel <#${message.channel.id}>`
+                ].join('\n'))
+            } else {
+                return message.reply([
+                    `\n> Links for channel <#${message.channel.id}>:`,
+                    lines.map((line, index) => `\`[${index.toString().padStart(2, '0')}]\` ${line}`).join('\n')
+                ].join('\n'))
+            }
 
         case "linkremove":
             return message.reply("This functionality has been moved to PythonBot!")
@@ -155,16 +168,24 @@ client.on('message', async message => {
             const fetched = await message.channel.messages.fetch({ limit: deleteCount })
             return message.channel.bulkDelete(fetched)
                 .catch(error => message.reply(`Couldn't delete messages because of: ${error}`))
+
+        default:
+            const result = await handler.handle(message)
+
+            if (result) {
+                return message.channel.send(result)
+            }
     }
 });
 
 const token: string | undefined = process.env.DISCORD_TOKEN
-
 console.log(`Token: {${token}}`)
-
 if (token == null) {
-    console.error("token not found! make sure to define it in the environment variable \"DISCORD_TOKEN\"!");
+    console.error('token not found! make sure to define it in the environment variable "DISCORD_TOKEN"!');
     exit(-1)
 }
 
-client.login(token)
+(async () => {
+    await database.connect()
+    await client.login(token)
+})()
