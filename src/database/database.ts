@@ -1,18 +1,18 @@
 import Mongoose = require("mongoose")
-import { exception } from 'console'
+import urljoin from "url-join"
 
 let database: Mongoose.Connection
 
 export const connect = async () => {
     const uri: string | undefined = process.env.MONGO_URI
     console.log(`Mongo URI: {${uri}}`)
-    if (uri == null) {
+    if (!uri) {
         console.error('uri not found! make sure to define it in the environment variable "MONGO_URI"!');
         throw new ReferenceError()
     }
 
     if (!database) {
-        await Mongoose.connect(uri, {
+        await Mongoose.connect(urljoin(uri, 'main'), {
             useNewUrlParser: true,
             useFindAndModify: true,
             useUnifiedTopology: true,
