@@ -39,48 +39,48 @@ client.on('message', async message => {
     // It's good practice to ignore other bots. This also makes your bot ignore itself
     // and not get into a spam loop (we call that "botception").
     if (message.author.bot) return
-    if (message.guild === null) return
-
-    if (message.content.toLowerCase().includes("doggo")) {
-        fs.readdir(doggoPath, function (err, files) {
-            //handling error
-            if (err) {
-                return console.log('Unable to scan directory: ' + err)
-            }
-            var file = files[Math.floor(Math.random() * files.length)]
-            message.channel.send({ files: [path.join(doggoPath, file)] })
-        })
-    }
-
-    //if (message.content.replace(/ *\<[^>]*\) */g, "").includes("69")) {
-    //	message.reply("nice");
-    //}
-
-    if (message.content.toLowerCase().includes('good boi')) {
-        const emoji = message.guild.emojis.cache.find(emoji => emoji.name === 'goodboi')
-        if (emoji != null)
-            message.react(emoji)
-        else
-            console.error('Emoji "goodboi" not found!')
-    }
-    else if (message.content.toLowerCase().includes('bad boi')) {
-        const emoji = message.guild.emojis.cache.find(emoji => emoji.name === 'angeryboi')
-        if (emoji != null)
-            message.react(emoji)
-        else
-            console.error('Emoji "angeryboi" not found!')
-    }
-    else if (message.content.toLowerCase().includes('boi')) {
-        const emoji = message.guild.emojis.cache.find(emoji => emoji.name === 'boiiiiii')
-        if (emoji != null)
-            message.react(emoji)
-        else
-            console.error('Emoji "boiiiiii" not found!')
-    }
+    if (message.guild == null) return
 
     // Also good practice to ignore any message that does not start with our prefix,
     // which is set in the configuration file.
-    if (message.content.indexOf(config.prefix) !== 0) return;
+    if (message.content.indexOf(config.prefix) !== 0) {
+
+        if (message.content.toLowerCase().includes("doggo")) {
+            fs.readdir(doggoPath, function (err, files) {
+                //handling error
+                if (err) {
+                    return console.log('Unable to scan directory: ' + err)
+                }
+                var file = files[Math.floor(Math.random() * files.length)]
+                message.channel.send({ files: [path.join(doggoPath, file)] })
+            })
+        }
+
+
+        if (message.content.toLowerCase().includes('good boi')) {
+            const emoji = message.guild.emojis.cache.find(emoji => emoji.name === 'goodboi')
+            if (emoji != null)
+                message.react(emoji)
+            else
+                console.error('Emoji "goodboi" not found!')
+        }
+        else if (message.content.toLowerCase().includes('bad boi')) {
+            const emoji = message.guild.emojis.cache.find(emoji => emoji.name === 'angeryboi')
+            if (emoji != null)
+                message.react(emoji)
+            else
+                console.error('Emoji "angeryboi" not found!')
+        }
+        else if (message.content.toLowerCase().includes('boi')) {
+            const emoji = message.guild.emojis.cache.find(emoji => emoji.name === 'boiiiiii')
+            if (emoji != null)
+                message.react(emoji)
+            else
+                console.error('Emoji "boiiiiii" not found!')
+        }
+
+        return
+    }
 
     // Here we separate our "command" name, and our "arguments" for the command.
     // e.g. if we have the message "+say Is this the real life?" , we'll get the following:
@@ -114,10 +114,6 @@ client.on('message', async message => {
             message.delete().catch(O_o => { })
             // And we get the bot to say the thing:
             message.channel.send(sayMessage)
-            break
-
-        case 'helpOld':
-            message.channel.send(fs.readFileSync('./assets/help.txt').toString())
             break
 
         case 'time':

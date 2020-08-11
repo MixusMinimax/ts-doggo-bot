@@ -27,11 +27,8 @@ export abstract class Handler {
 
 export abstract class SubHandler extends Handler {
 
-    sub: string
-
     constructor(parent: string, sub: string) {
-        super(parent)
-        this.sub = parent
+        super(parent + ' ' + sub)
     }
 }
 

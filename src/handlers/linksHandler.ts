@@ -4,15 +4,18 @@ import ThrowingArgumentParser from '../tools/throwingArgparse';
 import { ISimpleMessage } from '../tools/types';
 import { HandlerOptions, ParentHandler, SubHandler } from './handler.type';
 import config from '../../config/config.json'
+import { Const } from 'argparse';
 
 export class LinksHandler extends ParentHandler {
 
     constructor(prog: string) {
         super(prog, {
-            list: new LinksListHandler(prog, 'list')
+            list: new LinksListHandler(prog, 'list'),
+            add: new LinksAddHandler(prog, 'add'),
+            remove: new LinksRemoveHandler(prog, 'remove')
         }, {
             defaultSubCommand: 'list',
-            description: 'Manage Links for Channel!',
+            description: 'Manage Links for the current Channel!',
             usage: [
                 config.prefix + 'links <command> [<args>]',
                 '',
@@ -43,8 +46,63 @@ class LinksListHandler extends SubHandler {
 
     get parser() {
         const _parser = new ThrowingArgumentParser({
-            prog: this.prog + ' ' + this.sub,
-            description: 'Manage Links for Channel!'
+            prog: this.prog,
+            description: 'List all Links for the current Channel!'
+        })
+
+        return _parser
+    }
+}
+
+class LinksAddHandler extends SubHandler {
+
+    async execute(args: any, body: string, message: ISimpleMessage, _options: HandlerOptions = {}): Promise<string> {
+
+        if (!message.guild) {
+            throw new Error('No Guild')
+        }
+
+        const lines: string[] = body.split('\n').map(line => line.trim()).filter(line => line)
+        
+        if (lines.length > 0) {
+            const links = await Links.findOneOrCreate(message.guild.id, message.channel.id)
+            await links.insert(lines, args.index)
+            console.log(links)
+            return reply(message.author, '> Links successfully updated!')
+        } else {
+            return reply(message.author, '> No links supplied!')
+        }
+    }
+
+    get parser() {
+        const _parser = new ThrowingArgumentParser({
+            prog: this.prog,
+            description: 'Add Links to the current Channel!'
+        })
+        _parser.addArgument('index', {
+            nargs: Const.OPTIONAL,
+            defaultValue: -1,
+            type: 'int'
+        })
+
+        return _parser
+    }
+}
+
+class LinksRemoveHandler extends SubHandler {
+
+    async execute(args: any, body: string, message: ISimpleMessage, _options: HandlerOptions = {}): Promise<string> {
+        throw new Error('Not yet implemented!')
+    }
+
+    get parser() {
+        const _parser = new ThrowingArgumentParser({
+            prog: this.prog,
+            description: 'Remove Links from the current Channel!'
+        })
+        _parser.addArgument('indices', {
+            nargs: Const.REMAINDER,
+            defaultValue: [],
         })
 
         return _parser
