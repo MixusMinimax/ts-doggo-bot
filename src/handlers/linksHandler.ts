@@ -35,7 +35,7 @@ class LinksListHandler extends SubHandler {
         }
         const lines: string[] = (await Links.findOneOrCreate(message.guild.id, message.channel.id)).lines
         if (lines.length == 0) {
-            return reply(message.author, `\n> No Links for channel <#${message.channel.id}>`)
+            return reply(message.author, `> No Links for channel <#${message.channel.id}>`)
         } else {
             return ([
                 `\n> Links for channel <#${message.channel.id}>:`,
