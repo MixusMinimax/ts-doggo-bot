@@ -27,7 +27,11 @@ const filter: IFilter = {
             asd: false,
             dsa: true
         },
-        links: false,
+        links: {
+            default: false,
+            add: true,
+            remove: true,
+        },
         help: true
     }
 }

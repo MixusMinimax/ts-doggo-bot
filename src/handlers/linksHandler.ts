@@ -1,10 +1,11 @@
 import Links from '../database/models/links.model';
-import { reply } from '../tools/stringTools';
+import { reply, parseList, singularPlural } from '../tools/stringTools';
 import ThrowingArgumentParser from '../tools/throwingArgparse';
 import { ISimpleMessage } from '../tools/types';
 import { HandlerOptions, ParentHandler, SubHandler } from './handler.type';
 import config from '../../config/config.json'
 import { Const } from 'argparse';
+import { dlog } from '../tools/log';
 
 export class LinksHandler extends ParentHandler {
 
@@ -37,8 +38,8 @@ class LinksListHandler extends SubHandler {
         if (lines.length == 0) {
             return reply(message.author, `> No Links for channel <#${message.channel.id}>`)
         } else {
-            return ([
-                `\n> Links for channel <#${message.channel.id}>:`,
+            return reply(message.author, [
+                `> Links for channel <#${message.channel.id}>:`,
                 lines.map((line, index) => `\`[${index.toString().padStart(2, '0')}]\` ${line}`).join('\n')
             ].join('\n'))
         }
@@ -63,12 +64,13 @@ class LinksAddHandler extends SubHandler {
         }
 
         const lines: string[] = body.split('\n').map(line => line.trim()).filter(line => line)
-        
-        if (lines.length > 0) {
-            const links = await Links.findOneOrCreate(message.guild.id, message.channel.id)
-            await links.insertLines(lines, args.index)
-            console.log(links)
-            return reply(message.author, '> Links successfully updated!')
+
+        const links = await Links.findOneOrCreate(message.guild.id, message.channel.id)
+        const result = await links.insertLines(lines, args.index)
+        dlog('HANDLER.links.add', `Added ${links}`)
+
+        if (result?.addedLines?.length) {
+            return reply(message.author, `> Successfully added ${result.addedLines.length} ${singularPlural(result.addedLines.length, 'link')}!`)
         } else {
             return reply(message.author, '> No links supplied!')
         }
@@ -93,7 +95,24 @@ class LinksRemoveHandler extends SubHandler {
 
     async execute(args: any, body: string, message: ISimpleMessage, _options: HandlerOptions = {}): Promise<string> {
 
-        throw new Error('Not yet implemented!')
+        if (!message.guild) {
+            throw new Error('No Guild')
+        }
+
+        const indicesString = args.indices.join(' ')
+        const indices = parseList(x => +x, indicesString)
+        dlog('HANDLER.links.remove', `Indices: ${indices}`)
+
+        const links = await Links.findOneOrCreate(message.guild.id, message.channel.id)
+        const result = await links.removeLines(indices)
+
+        const n = result.removedIndices?.length || 0
+        if (result.removedIndices?.length) {
+            return reply(message.author, `> Successfully removed ${
+                singularPlural(n, 'link')} at ${singularPlural(n, 'index', 'indices')} \`${result.removedIndices.join(', ')}\``)
+        } else {
+            return reply(message.author, '> No valid indices supplied!')
+        }
     }
 
     get parser() {

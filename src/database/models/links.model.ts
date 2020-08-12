@@ -4,8 +4,8 @@ import { dlog } from '../../tools/log'
 
 export interface ILinksUpdateResult {
     links: ILinksDocument,
-    linesAdded?: number,
-    linesRemoved?: number
+    addedLines?: string[],
+    removedIndices?: number[]
 }
 
 export interface ILinksDocument extends Document {

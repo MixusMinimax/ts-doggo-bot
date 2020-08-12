@@ -25,6 +25,12 @@ const implementMethods = function implementMethods() {
 
     LinksSchema.methods.insertLines = async function (lines: string[], at: number = -1): Promise<ILinksUpdateResult> {
         const self: ILinksDocument = <ILinksDocument>this
+        if (lines.length == 0) {
+            return {
+                links: self,
+                addedLines: lines
+            }
+        }
         if (at >= self.lines.length) at = -1
         if (at < 0) {
             self.lines = self.lines.concat(lines)
@@ -35,18 +41,24 @@ const implementMethods = function implementMethods() {
         }
         return {
             links: await self.save(),
-            linesAdded: lines.length
+            addedLines: lines
         }
     }
 
     LinksSchema.methods.removeLines = async function (indices: number[]): Promise<ILinksUpdateResult> {
         const self: ILinksDocument = <ILinksDocument>this
         // Just as an accurate presentation of how many lines were removed
-        indices = indices.filter(index => index >= 0 && index < self.lines.length)
+        indices = indices.filter(index => index >= 0 && index < self.lines.length).sort()
+        if (indices.length == 0) {
+            return {
+                links: self,
+                removedIndices: indices
+            }
+        }
         self.lines = self.lines.filter((_line: string, index: number) => !indices.includes(index))
         return {
             links: await self.save(),
-            linesRemoved: indices.length
+            removedIndices: indices
         }
     }
 }

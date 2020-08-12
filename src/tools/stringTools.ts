@@ -47,8 +47,8 @@ export const wordWrap = function (s: string, {
                 } else {
                     result = result.trimRight()
                     ++currentLine
-                            if (currentLine >= maxLines)
-                                break outer
+                    if (currentLine >= maxLines)
+                        break outer
                     result += newLine
                     offset = 0
                 }
@@ -125,4 +125,18 @@ export const nameDescription = function (name: string, description: string, {
 
 export const reply = function (user: User, message: string, args: { delim?: string } = {}): string {
     return `<@${user.id}>${args.delim || '\n'}${message}`
+}
+
+export const parseList = function <T>(parseElement: (element: string) => T, s: string): T[] {
+    var x: string = s
+    console.log(x)
+    x = x.match(/\(([^()]+)\)/)?.[1] || x
+    x = x.match(/\[([^()]+)\]/)?.[1] || x
+    x = x.trim().replace(/^,*|,*$/, '')
+    var tokens = x.split(/ *, *| +/).map(e => e.trim()).filter(e => e)
+    return tokens.map(parseElement)
+}
+
+export const singularPlural = function (amount: number, singular: string, plural?: string) {
+    return amount == 1 && singular || plural || singular + 's'
 }
