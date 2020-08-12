@@ -1,11 +1,9 @@
-import Links, { LinksSchema, ILinksDocument } from '../models/links.model'
 import { } from 'mongoose'
+import { dlog } from '../../tools/log'
+import Links, { ILinksDocument, ILinksUpdateResult, LinksSchema } from '../models/links.model'
 
 
 const implementStatics = function implementStatics() {
-    LinksSchema.statics.func = function func(name: string) {
-        console.log(name)
-    }
 
     LinksSchema.statics.findOneOrCreate = async function (guild: string, channel: string): Promise<ILinksDocument> {
         const doc = await Links.findOne({
@@ -13,7 +11,7 @@ const implementStatics = function implementStatics() {
             channel
         })
         return doc || (() => {
-            console.log('create')
+            dlog('MONGO.models.links', 'create')
             return Links.create({
                 guild,
                 channel,
@@ -24,16 +22,32 @@ const implementStatics = function implementStatics() {
 }
 
 const implementMethods = function implementMethods() {
-    LinksSchema.methods.insert = async function (lines: string[], at: number = -1): Promise<void> {
-        if (at >= this.lines.length) at = -1
+
+    LinksSchema.methods.insertLines = async function (lines: string[], at: number = -1): Promise<ILinksUpdateResult> {
+        const self: ILinksDocument = <ILinksDocument>this
+        if (at >= self.lines.length) at = -1
         if (at < 0) {
-            this.lines = this.lines.concat(lines)
+            self.lines = self.lines.concat(lines)
         } else if (at == 0) {
-            this.lines = lines.concat(this.lines)
+            self.lines = lines.concat(self.lines)
         } else {
-            this.lines = this.lines.splice(0, at).concat(lines).concat(this.lines)
+            self.lines = self.lines.splice(0, at).concat(lines).concat(self.lines)
         }
-        await this.save()
+        return {
+            links: await self.save(),
+            linesAdded: lines.length
+        }
+    }
+
+    LinksSchema.methods.removeLines = async function (indices: number[]): Promise<ILinksUpdateResult> {
+        const self: ILinksDocument = <ILinksDocument>this
+        // Just as an accurate presentation of how many lines were removed
+        indices = indices.filter(index => index >= 0 && index < self.lines.length)
+        self.lines = self.lines.filter((_line: string, index: number) => !indices.includes(index))
+        return {
+            links: await self.save(),
+            linesRemoved: indices.length
+        }
     }
 }
 

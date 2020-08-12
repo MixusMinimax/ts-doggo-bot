@@ -1,11 +1,19 @@
 import { Document, model, Schema, Model } from 'mongoose'
 import initController from '../controllers/links.controller'
+import { dlog } from '../../tools/log'
+
+export interface ILinksUpdateResult {
+    links: ILinksDocument,
+    linesAdded?: number,
+    linesRemoved?: number
+}
 
 export interface ILinksDocument extends Document {
     guild: string,
     channel: string
     lines: string[],
-    insert: (lines: string[], at: number) => Promise<void>
+    insertLines: (lines: string[], at: number) => Promise<ILinksUpdateResult>,
+    removeLines: (indices: number[]) => Promise<ILinksUpdateResult>
 }
 
 export const LinksSchema = new Schema({
@@ -15,7 +23,6 @@ export const LinksSchema = new Schema({
 })
 
 interface ILinksModel extends Model<ILinksDocument> {
-    func: (name: string) => void,
     findOneOrCreate: (guild: string, channel: string) => Promise<ILinksDocument>
 }
 
@@ -24,4 +31,4 @@ initController()
 const Links = model<ILinksDocument, ILinksModel>('Links', LinksSchema)
 export default Links
 
-console.log(LinksSchema.methods)
+dlog('MONGO.models.links', LinksSchema.methods)

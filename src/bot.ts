@@ -3,11 +3,11 @@ import { Client, MessageEmbed } from 'discord.js'
 import fs from 'fs'
 import path from 'path'
 import { exit } from 'process'
-import package_json from '../package.json'
 import config from '../config/config.json'
+import package_json from '../package.json'
 import * as database from './database/database'
-import Links from './database/models/links.model'
 import * as handler from './handlers/handler'
+import { dlog } from './tools/log'
 
 const doggoPath = path.join(__dirname, '../assets/images/doggos');
 const mods = ["Administrator", "Admin", "Moderator"];
@@ -15,7 +15,7 @@ const mods = ["Administrator", "Admin", "Moderator"];
 const client = new Client();
 
 client.on('ready', () => {
-    console.log(`Bot has started, with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.`)
+    dlog('BOT.ready', `Bot has started, with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.`)
     // Example of changing the bot's playing game to something useful. `client.user` is what the
     // docs refer to as the "ClientUser".
     client.user?.setActivity(`Serving ${client.guilds.cache.size} servers`)
@@ -23,13 +23,13 @@ client.on('ready', () => {
 
 client.on('guildCreate', guild => {
     // This event triggers when the bot joins a guild.
-    console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`)
+    dlog('BOT.guildCreate', `New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`)
     client.user?.setActivity(`Serving ${client.guilds.cache.size} servers`)
 })
 
 client.on('guildDelete', guild => {
     // this event triggers when the bot is removed from a guild.
-    console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`)
+    dlog('BOT.guildDelete', `I have been removed from: ${guild.name} (id: ${guild.id})`)
     client.user?.setActivity(`Serving ${client.guilds.cache.size} servers`)
 })
 
@@ -159,7 +159,7 @@ client.on('message', async message => {
 });
 
 const token: string | undefined = process.env.DISCORD_TOKEN
-console.log(`Token: {${token}}`)
+dlog('BOT.token', `Token: {${token}}`)
 if (token == null) {
     console.error('token not found! make sure to define it in the environment variable "DISCORD_TOKEN"!');
     exit(-1)

@@ -66,7 +66,7 @@ class LinksAddHandler extends SubHandler {
         
         if (lines.length > 0) {
             const links = await Links.findOneOrCreate(message.guild.id, message.channel.id)
-            await links.insert(lines, args.index)
+            await links.insertLines(lines, args.index)
             console.log(links)
             return reply(message.author, '> Links successfully updated!')
         } else {
@@ -92,6 +92,7 @@ class LinksAddHandler extends SubHandler {
 class LinksRemoveHandler extends SubHandler {
 
     async execute(args: any, body: string, message: ISimpleMessage, _options: HandlerOptions = {}): Promise<string> {
+
         throw new Error('Not yet implemented!')
     }
 

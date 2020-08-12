@@ -1,10 +1,10 @@
 import { Message } from 'discord.js';
 import config from '../../config/config.json';
 import parseMessage from '../tools/messageParser';
-import { Indexable, PermissionLevelException, ISimpleMessage } from '../tools/types';
+import { Indexable, ISimpleMessage, PermissionLevelException } from '../tools/types';
 import { Handler } from './handler.type';
-import { LinksHandler } from './linksHandler';
 import { HelpHandler } from './helpHandler';
+import { LinksHandler } from './linksHandler';
 
 interface IndexableHandlers extends Indexable<Handler> {
     links: LinksHandler

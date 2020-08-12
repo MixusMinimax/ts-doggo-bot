@@ -1,11 +1,13 @@
 import Mongoose = require("mongoose")
 import urljoin from "url-join"
+import { dlog } from "../tools/log"
+
 
 let database: Mongoose.Connection
 
 export const connect = async () => {
     const uri: string | undefined = process.env.MONGO_URI
-    console.log(`Mongo URI: {${uri}}`)
+    dlog('MONGO.token', `Mongo URI: {${uri}}`)
     if (!uri) {
         console.error('uri not found! make sure to define it in the environment variable "MONGO_URI"!');
         throw new ReferenceError()
@@ -22,7 +24,7 @@ export const connect = async () => {
         database = Mongoose.connection
 
         database.once('open', async () => {
-            console.log('')
+            dlog('MONGO.open', 'Opened')
         })
 
         database.on('error', () => {

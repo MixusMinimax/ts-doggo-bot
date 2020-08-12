@@ -10,7 +10,7 @@ import Links from './database/models/links.model'
 
     console.log(`initial: ${links1}`)
 
-    await links1.insert([
+    await links1.insertLines([
         "Lineappend"
     ], -1)
 
