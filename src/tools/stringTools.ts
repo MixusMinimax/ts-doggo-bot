@@ -129,7 +129,6 @@ export const reply = function (user: User, message: string, args: { delim?: stri
 
 export const parseList = function <T>(parseElement: (element: string) => T, s: string): T[] {
     var x: string = s
-    console.log(x)
     x = x.match(/\(([^()]+)\)/)?.[1] || x
     x = x.match(/\[([^()]+)\]/)?.[1] || x
     x = x.trim().replace(/^,*|,*$/, '')

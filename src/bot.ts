@@ -49,7 +49,7 @@ client.on('message', async message => {
             fs.readdir(doggoPath, function (err, files) {
                 //handling error
                 if (err) {
-                    return console.log('Unable to scan directory: ' + err)
+                    return console.error('Unable to scan directory: ' + err)
                 }
                 var file = files[Math.floor(Math.random() * files.length)]
                 message.channel.send({ files: [path.join(doggoPath, file)] })

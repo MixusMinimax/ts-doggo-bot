@@ -1,5 +1,6 @@
 import { Message } from 'discord.js';
 import config from '../../config/config.json';
+import { dlog } from '../tools/log';
 import parseMessage from '../tools/messageParser';
 import { Indexable, ISimpleMessage, PermissionLevelException } from '../tools/types';
 import { Handler } from './handler.type';
@@ -24,7 +25,7 @@ export const handle = async function (tokens: string[], body: string, message: I
             try {
                 const args = handler.parser.parseKnownArgs(tokens)
 
-                console.log(args)
+                dlog('HANDLER..args', args)
 
                 if (args[0].help && args[0].command?.[0]) {
                     args[0].help = false
@@ -67,6 +68,8 @@ export const handleMessage = async function (message: Message): Promise<string |
     const parsed = parseMessage(message)
 
     if (!parsed.isCommand) return
+
+    dlog('HANDLER', `executing: "${config.prefix}${parsed.tokens.join(' ')}"`)
 
     return await handle(parsed.tokens, parsed.body, message)
 }

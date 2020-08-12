@@ -6,6 +6,7 @@ interface IFilter extends Indexable<boolean | IFilter> {
 
 const filter: IFilter = {
     default: true,
+    ARGPARSE: false,
     BOT: {
         default: true,
         ready: true,
@@ -24,8 +25,7 @@ const filter: IFilter = {
     HANDLER: {
         default: {
             default: true,
-            asd: false,
-            dsa: true
+            args: false
         },
         links: {
             default: false,
@@ -63,7 +63,7 @@ export const isEnabled = function (tag: string): false | string {
 }
 
 export const dformat = function (tag: string, message?: any, {
-    tab = 20,
+    tab = 28,
     repeat = '.',
     delims = [' ', ' ']
 }: {

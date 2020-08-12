@@ -2,6 +2,7 @@ import argparse, { ArgumentParser } from 'argparse'
 import config from '../../config/config.json'
 import ThrowingArgumentParser from '../tools/throwingArgparse'
 import { Indexable, ISimpleMessage } from '../tools/types'
+import { dlog } from '../tools/log'
 
 export interface HandlerOptions {
     handlers?: Indexable<Handler>,
@@ -55,7 +56,7 @@ export abstract class ParentHandler extends Handler {
         if (handler) {
             const parsedArgs = handler.parser.parseKnownArgs(tokens)
 
-            console.log(parsedArgs)
+            dlog(`HANDLER.${command}`, parsedArgs)
 
             if (parsedArgs[0].help) {
                 return `<@${message.author.id}>\n`

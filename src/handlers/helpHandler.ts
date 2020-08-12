@@ -1,7 +1,8 @@
+import argparse from 'argparse';
 import config from '../../config/config.json';
+import { dlog } from '../tools/log';
 import { nameDescription, reply } from '../tools/stringTools';
 import ThrowingArgumentParser from '../tools/throwingArgparse';
-import argparse, { } from 'argparse'
 import { ISimpleMessage } from '../tools/types';
 import { Handler, HandlerOptions } from './handler.type';
 
@@ -21,7 +22,7 @@ export class HelpHandler extends Handler {
         }
 
         if (command) {
-            console.log('command: ' + command)
+            dlog('HANDLER.help', 'command: ' + command)
             const result = await options.handle?.call(null, [command, '-h'].concat(args.command || []), body, message)
             if (result) {
                 return result
