@@ -1,12 +1,12 @@
 import * as database from './database/database'
-import Links from './database/models/links.model'
+import LinkLists from './database/models/links'
 
 (async () => {
     const db = await database.connect()
 
     console.log('connected')
 
-    let links1 = await Links.findOneOrCreate('guild', 'channel')
+    let links1 = await LinkLists.findOneOrCreate('guild', 'channel')
 
     console.log(`initial: ${links1}`)
 
@@ -16,7 +16,7 @@ import Links from './database/models/links.model'
 
     console.log(`updated: ${links1}`)
 
-    links1 = await Links.findOneOrCreate('guild', 'channel')
+    links1 = await LinkLists.findOneOrCreate('guild', 'channel')
 
     console.log(`remote:  ${links1}`)
 

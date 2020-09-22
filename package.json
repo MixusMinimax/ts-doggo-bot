@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "lint": "tslint -c tslint.json -p tsconfig.json",
     "test": "ts-node src/test.ts",
     "start": "ts-node src/bot.ts",
-    "dev": "nodemon -x ts-node src/bot.ts",
+    "dev": "nodemon",
     "build": "tsc"
   },
   "repository": {
@@ -32,6 +33,7 @@
     "express": "^4.17.1",
     "mongoose": "^5.9.28",
     "nodemon": "^2.0.4",
+    "reflect-metadata": "^0.1.13",
     "text-tokenizer": "^1.0.4",
     "ts-mongoose": "0.0.21",
     "ts-node": "^8.10.2",
