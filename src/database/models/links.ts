@@ -9,7 +9,8 @@ export interface ILinksUpdateResult {
 
 @modelOptions({
     schemaOptions: {
-        collection: 'links'
+        collection: 'links',
+        versionKey: false
     }
 })
 export class LinkList {

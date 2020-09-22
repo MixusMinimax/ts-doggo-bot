@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "tslint -c tslint.json -p tsconfig.json",
-    "test": "ts-node src/test.ts",
+    "test": "mocha -r ts-node/register test/**/*.ts",
     "start": "ts-node src/bot.ts",
     "dev": "nodemon",
     "build": "tsc"
@@ -39,5 +39,11 @@
     "ts-node": "^8.10.2",
     "typescript": "^3.9.7",
     "url-join": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.12",
+    "@types/mocha": "^8.0.3",
+    "chai": "^4.2.0",
+    "mocha": "^8.1.3"
   }
 }

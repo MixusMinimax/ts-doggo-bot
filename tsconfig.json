@@ -76,7 +76,7 @@
     "src/**/*.png",
     "src/**/*.jpg",
     "src/**/*.jpeg"
-  ],
+, "test/links.spec.ts"  ],
   "exclude" : [
       "node_modules"                          /* exclude everything in node_modules */
   ]
