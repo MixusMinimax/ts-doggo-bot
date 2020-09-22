@@ -1,11 +1,11 @@
-import Links from '../database/models/links.model';
-import { reply, parseList, singularPlural } from '../tools/stringTools';
-import ThrowingArgumentParser from '../tools/throwingArgparse';
-import { ISimpleMessage } from '../tools/types';
-import { HandlerOptions, ParentHandler, SubHandler } from './handler.type';
+import Links from '../database/models/links.model'
+import { reply, parseList, singularPlural } from '../tools/stringTools'
+import ThrowingArgumentParser from '../tools/throwingArgparse'
+import { ISimpleMessage } from '../tools/types'
+import { HandlerOptions, ParentHandler, SubHandler } from './handler.type'
 import config from '../../config/config.json'
-import { Const } from 'argparse';
-import { dlog } from '../tools/log';
+import { Const } from 'argparse'
+import { dlog } from '../tools/log'
 
 export class LinksHandler extends ParentHandler {
 
@@ -35,7 +35,7 @@ class LinksListHandler extends SubHandler {
             throw new Error('No Guild')
         }
         const lines: string[] = (await Links.findOneOrCreate(message.guild.id, message.channel.id)).lines
-        if (lines.length == 0) {
+        if (lines.length === 0) {
             return reply(message.author, `> No Links for channel <#${message.channel.id}>`)
         } else {
             return reply(message.author, [
@@ -108,8 +108,7 @@ class LinksRemoveHandler extends SubHandler {
 
         const n = result.removedIndices?.length || 0
         if (result.removedIndices?.length) {
-            return reply(message.author, `> Successfully removed ${
-                singularPlural(n, 'link')} at ${singularPlural(n, 'index', 'indices')} \`${result.removedIndices.join(', ')}\``)
+            return reply(message.author, `> Successfully removed ${singularPlural(n, 'link')} at ${singularPlural(n, 'index', 'indices')} \`${result.removedIndices.join(', ')}\``)
         } else {
             return reply(message.author, '> No valid indices supplied!')
         }

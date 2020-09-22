@@ -1,11 +1,11 @@
-import { Message } from 'discord.js';
-import config from '../../config/config.json';
-import { dlog } from '../tools/log';
-import parseMessage from '../tools/messageParser';
-import { Indexable, ISimpleMessage, PermissionLevelException } from '../tools/types';
-import { Handler } from './handler.type';
-import { HelpHandler } from './helpHandler';
-import { LinksHandler } from './linksHandler';
+import { Message } from 'discord.js'
+import config from '../../config/config.json'
+import { dlog } from '../tools/log'
+import parseMessage from '../tools/messageParser'
+import { Indexable, ISimpleMessage, PermissionLevelException } from '../tools/types'
+import { Handler } from './handler.type'
+import { HelpHandler } from './helpHandler'
+import { LinksHandler } from './linksHandler'
 
 interface IndexableHandlers extends Indexable<Handler> {
     links: LinksHandler

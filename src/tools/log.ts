@@ -1,4 +1,4 @@
-import { Indexable } from "./types";
+import { Indexable } from './types'
 
 interface IFilter extends Indexable<boolean | IFilter> {
     default: boolean | IFilter
@@ -37,7 +37,7 @@ const filter: IFilter = {
 }
 
 function isIFilter(object: any): object is IFilter {
-    return object && (<IFilter>object).default !== undefined
+    return object && (object as IFilter).default !== undefined
 }
 
 export const isEnabled = function (tag: string): false | string {
@@ -45,9 +45,9 @@ export const isEnabled = function (tag: string): false | string {
     const tokens = tag.split(/:|\.|\//)
     tag = ''
 
-    var current: undefined | boolean | IFilter = filter
+    let current: undefined | boolean | IFilter = filter
 
-    for (var token of tokens) {
+    for (let token of tokens) {
         token = token || 'default'
         const textToken = token !== 'default' && token || ''
         if (!isIFilter(current)) return false
@@ -71,8 +71,8 @@ export const dformat = function (tag: string, message?: any, {
     repeat?: string,
     delims?: string[]
 } = {}): false | string {
-    let newTag: false | string
-    if ((newTag = isEnabled(tag)) !== false) {
+    const newTag = isEnabled(tag)
+    if (newTag !== false) {
         const offset = 2 + newTag.length + delims[0].length
         const paddingLength = tab - offset - delims[1].length
         const paddingTemplate = repeat.repeat(tab)
@@ -83,8 +83,8 @@ export const dformat = function (tag: string, message?: any, {
 }
 
 export const dPrintToStream = function (cb: (message?: any, ...optionalParams: any[]) => void, tag: string, message?: any, ...optionalParams: any[]) {
-    let result: false | string
-    if ((result = dformat(tag, message)) !== false) {
+    const result = dformat(tag, message)
+    if (result !== false) {
         cb(result, ...optionalParams)
     }
 }

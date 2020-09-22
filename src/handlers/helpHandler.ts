@@ -1,10 +1,10 @@
-import argparse from 'argparse';
-import config from '../../config/config.json';
-import { dlog } from '../tools/log';
-import { nameDescription, reply } from '../tools/stringTools';
-import ThrowingArgumentParser from '../tools/throwingArgparse';
-import { ISimpleMessage } from '../tools/types';
-import { Handler, HandlerOptions } from './handler.type';
+import argparse from 'argparse'
+import config from '../../config/config.json'
+import { dlog } from '../tools/log'
+import { nameDescription, reply } from '../tools/stringTools'
+import ThrowingArgumentParser from '../tools/throwingArgparse'
+import { ISimpleMessage } from '../tools/types'
+import { Handler, HandlerOptions } from './handler.type'
 
 export class HelpHandler extends Handler {
 
@@ -16,7 +16,7 @@ export class HelpHandler extends Handler {
             throw new Error('Handlers not initialized')
         }
 
-        var command: string | undefined = args.command?.shift()
+        let command: string | undefined = args.command?.shift()
         if (command?.startsWith(config.prefix)) {
             command = command?.substring(config.prefix.length)?.replace(/^\s*/, '')
         }

@@ -1,5 +1,5 @@
-import { ArgumentParser, Namespace } from 'argparse';
-import { Channel, Guild, User } from 'discord.js';
+import { ArgumentParser, Namespace } from 'argparse'
+import { Channel, Guild, User } from 'discord.js'
 
 export interface ISimpleMessage {
     content: string,

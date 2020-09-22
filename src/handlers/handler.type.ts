@@ -17,7 +17,7 @@ export abstract class Handler {
         this.prog = config.prefix + prog
     }
 
-    abstract async execute(args: any, body: string, message: ISimpleMessage, options?: HandlerOptions): Promise<void | string>
+    abstract execute(args: any, body: string, message: ISimpleMessage, options?: HandlerOptions): Promise<void | string>
 
     abstract parser: ThrowingArgumentParser
 

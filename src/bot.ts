@@ -1,4 +1,4 @@
-import "discord.js"
+import 'discord.js'
 import { Client, MessageEmbed } from 'discord.js'
 import fs from 'fs'
 import path from 'path'
@@ -9,10 +9,10 @@ import * as database from './database/database'
 import * as handler from './handlers/handler'
 import { dlog } from './tools/log'
 
-const doggoPath = path.join(__dirname, '../assets/images/doggos');
-const mods = ["Administrator", "Admin", "Moderator"];
+const doggoPath = path.join(__dirname, '../assets/images/doggos')
+const mods = ['Administrator', 'Admin', 'Moderator']
 
-const client = new Client();
+const client = new Client()
 
 client.on('ready', () => {
     dlog('BOT.ready', `Bot has started, with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.`)
@@ -45,34 +45,34 @@ client.on('message', async message => {
     // which is set in the configuration file.
     if (message.content.indexOf(config.prefix) !== 0) {
 
-        if (message.content.toLowerCase().includes("doggo")) {
+        if (message.content.toLowerCase().includes('doggo')) {
             fs.readdir(doggoPath, function (err, files) {
-                //handling error
+                // handling error
                 if (err) {
                     return console.error('Unable to scan directory: ' + err)
                 }
-                var file = files[Math.floor(Math.random() * files.length)]
+                const file = files[Math.floor(Math.random() * files.length)]
                 message.channel.send({ files: [path.join(doggoPath, file)] })
             })
         }
 
 
         if (message.content.toLowerCase().includes('good boi')) {
-            const emoji = message.guild.emojis.cache.find(emoji => emoji.name === 'goodboi')
+            const emoji = message.guild.emojis.cache.find(x => x.name === 'goodboi')
             if (emoji != null)
                 message.react(emoji)
             else
                 console.error('Emoji "goodboi" not found!')
         }
         else if (message.content.toLowerCase().includes('bad boi')) {
-            const emoji = message.guild.emojis.cache.find(emoji => emoji.name === 'angeryboi')
+            const emoji = message.guild.emojis.cache.find(x => x.name === 'angeryboi')
             if (emoji != null)
                 message.react(emoji)
             else
                 console.error('Emoji "angeryboi" not found!')
         }
         else if (message.content.toLowerCase().includes('boi')) {
-            const emoji = message.guild.emojis.cache.find(emoji => emoji.name === 'boiiiiii')
+            const emoji = message.guild.emojis.cache.find(x => x.name === 'boiiiiii')
             if (emoji != null)
                 message.react(emoji)
             else
@@ -101,17 +101,17 @@ client.on('message', async message => {
             // Calculates ping between sending a message and editing it, giving a nice round-trip latency.
             // The second ping is an average latency between the bot and the websocket server (one-way, not round-trip)
             message.channel.send('Pinging...').then(m => {
-                var ping = m.createdTimestamp - message.createdTimestamp
+                const ping = m.createdTimestamp - message.createdTimestamp
                 m.edit(`**Pong!** API latency: \`${ping}ms\``)
-            });
-            break;
+            })
+            break
 
         case 'say':
             // makes the bot say something and delete the message. As an example, it's open to anyone to use.
             // To get the "message" itself we join the `args` back into a string with spaces:
-            const sayMessage = args.join(" ")
+            const sayMessage = args.join(' ')
             // Then we delete the command message (sneaky, right?). The catch just ignores the error with a cute smiley thing.
-            message.delete().catch(O_o => { })
+            message.delete().catch(() => { })
             // And we get the bot to say the thing:
             message.channel.send(sayMessage)
             break
@@ -134,15 +134,15 @@ client.on('message', async message => {
                 .setTimestamp()
             return message.channel.send(embed)
 
-        case "purge":
+        case 'purge':
             // This command removes all messages from all users in the channel, up to 100.
 
             // get the delete count, as an actual number.
-            const deleteCount = parseInt(args[0], 10);
+            const deleteCount = parseInt(args[0], 10)
 
             // Ooooh nice, combined conditions. <3
             if (!deleteCount || deleteCount < 2 || deleteCount > 100)
-                return message.reply("Please provide a number between 2 and 100 for the number of messages to delete")
+                return message.reply('Please provide a number between 2 and 100 for the number of messages to delete')
 
             // So we get our messages, and delete them. Simple enough, right?
             const fetched = await message.channel.messages.fetch({ limit: deleteCount })
@@ -156,12 +156,12 @@ client.on('message', async message => {
                 return message.channel.send(result)
             }
     }
-});
+})
 
 const token: string | undefined = process.env.DISCORD_TOKEN
 dlog('BOT.token', `Token: {${token}}`)
 if (token == null) {
-    console.error('token not found! make sure to define it in the environment variable "DISCORD_TOKEN"!');
+    console.error('token not found! make sure to define it in the environment variable "DISCORD_TOKEN"!')
     exit(-1)
 }
 

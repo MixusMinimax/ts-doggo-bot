@@ -3,7 +3,7 @@ import { dlog } from '../../tools/log'
 import Links, { ILinksDocument, ILinksUpdateResult, LinksSchema } from '../models/links.model'
 
 
-const implementStatics = function implementStatics() {
+const implementStatics = function () {
 
     LinksSchema.statics.findOneOrCreate = async function (guild: string, channel: string): Promise<ILinksDocument> {
         const doc = await Links.findOne({
@@ -16,16 +16,16 @@ const implementStatics = function implementStatics() {
                 guild,
                 channel,
                 lines: []
-            });
+            })
         })()
     }
 }
 
-const implementMethods = function implementMethods() {
+const implementMethods = function () {
 
     LinksSchema.methods.insertLines = async function (lines: string[], at: number = -1): Promise<ILinksUpdateResult> {
-        const self: ILinksDocument = <ILinksDocument>this
-        if (lines.length == 0) {
+        const self: ILinksDocument = this as ILinksDocument
+        if (lines.length === 0) {
             return {
                 links: self,
                 addedLines: lines
@@ -34,7 +34,7 @@ const implementMethods = function implementMethods() {
         if (at >= self.lines.length) at = -1
         if (at < 0) {
             self.lines = self.lines.concat(lines)
-        } else if (at == 0) {
+        } else if (at === 0) {
             self.lines = lines.concat(self.lines)
         } else {
             self.lines = self.lines.splice(0, at).concat(lines).concat(self.lines)
@@ -46,10 +46,10 @@ const implementMethods = function implementMethods() {
     }
 
     LinksSchema.methods.removeLines = async function (indices: number[]): Promise<ILinksUpdateResult> {
-        const self: ILinksDocument = <ILinksDocument>this
+        const self: ILinksDocument = this as ILinksDocument
         // Just as an accurate presentation of how many lines were removed
         indices = indices.filter(index => index >= 0 && index < self.lines.length).sort()
-        if (indices.length == 0) {
+        if (indices.length === 0) {
             return {
                 links: self,
                 removedIndices: indices

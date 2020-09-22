@@ -1,5 +1,5 @@
-import { ArgumentParser, ArgumentParserOptions } from 'argparse';
-import { dlog } from './log';
+import { ArgumentParser, ArgumentParserOptions } from 'argparse'
+import { dlog } from './log'
 
 export class ArgumentParseError extends Error { }
 

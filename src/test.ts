@@ -4,14 +4,14 @@ import Links from './database/models/links.model'
 (async () => {
     const db = await database.connect()
 
-    console.log("connected")
+    console.log('connected')
 
-    var links1 = await Links.findOneOrCreate('guild', 'channel')
+    let links1 = await Links.findOneOrCreate('guild', 'channel')
 
     console.log(`initial: ${links1}`)
 
     await links1.insertLines([
-        "Lineappend"
+        'Lineappend'
     ], -1)
 
     console.log(`updated: ${links1}`)

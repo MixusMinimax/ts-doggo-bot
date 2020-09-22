@@ -20,17 +20,17 @@ export const wordWrap = function (s: string, {
     let result = ''
     let offset = startOffset
     const newLine = '\n' + ' '.repeat(indent)
-    var currentLine = 0
+    let currentLine = 0
 
     outer: for (const word of words) {
-        let remaining = max - offset
+        const remaining = max - offset
         while (true) {
             if (word.trimRight().length <= remaining) {
                 result += word
                 offset += word.length
                 break
             } else {
-                if (offset == 0) {
+                if (offset === 0) {
                     // word doesn't fit in line, must be cut
                     const iterations = Math.ceil(word.length / max)
                     for (let i = 0; i < iterations; ++i) {
@@ -98,8 +98,8 @@ export const nameDescription = function (name: string, description: string, {
     const length = name.length + delim.length
     const padding = Math.max(minSpace, tab - length)
 
-    var result = name + delim + repeat.repeat(length + padding).substr(length, padding)
-    var offset = result.length
+    let result = name + delim + repeat.repeat(length + padding).substr(length, padding)
+    let offset = result.length
 
 
     // resolve too long name
@@ -117,7 +117,7 @@ export const nameDescription = function (name: string, description: string, {
         max: maxLength - tab,
         indent: keepIndentation && offset || tab,
         startOffset: offset,
-        maxLines: maxLines
+        maxLines
     })
 
     return result
@@ -128,14 +128,14 @@ export const reply = function (user: User, message: string, args: { delim?: stri
 }
 
 export const parseList = function <T>(parseElement: (element: string) => T, s: string): T[] {
-    var x: string = s
+    let x: string = s
     x = x.match(/\(([^()]+)\)/)?.[1] || x
     x = x.match(/\[([^()]+)\]/)?.[1] || x
     x = x.trim().replace(/^,*|,*$/, '')
-    var tokens = x.split(/ *, *| +/).map(e => e.trim()).filter(e => e)
+    const tokens = x.split(/ *, *| +/).map(e => e.trim()).filter(e => e)
     return tokens.map(parseElement)
 }
 
 export const singularPlural = function (amount: number, singular: string, plural?: string) {
-    return amount == 1 && singular || plural || singular + 's'
+    return amount === 1 && singular || plural || singular + 's'
 }
