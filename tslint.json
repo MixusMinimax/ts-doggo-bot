@@ -16,7 +16,10 @@
             "single"
         ],
         "max-classes-per-file": false,
-        "no-empty": false
+        "no-empty": false,
+        "no-unused-expression-chai": true
     },
-    "rulesDirectory": []
+    "rulesDirectory": [
+        "tslint-no-unused-expression-chai"
+    ]
 }

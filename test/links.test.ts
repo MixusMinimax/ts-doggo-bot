@@ -9,7 +9,7 @@ describe('LinkLists', function () {
     describe('#findOneOrCreate()', function () {
         it('should return an existing document', async function () {
             const links = await LinkLists.findOneOrCreate('guild', 'channel')
-            expect(links).to.not.equal(null)
+            expect(links).not.to.be.null
             expect(links).to.have.property('guild', 'guild')
             expect(links).to.have.property('channel', 'channel')
             expect(links).to.have.property('lines')
