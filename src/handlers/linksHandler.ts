@@ -1,4 +1,4 @@
-import Links from '../database/models/links.model'
+import { LinkLists } from '../database/models/links'
 import { reply, parseList, singularPlural } from '../tools/stringTools'
 import ThrowingArgumentParser from '../tools/throwingArgparse'
 import { ISimpleMessage } from '../tools/types'
@@ -34,7 +34,7 @@ class LinksListHandler extends SubHandler {
         if (!message.guild) {
             throw new Error('No Guild')
         }
-        const lines: string[] = (await Links.findOneOrCreate(message.guild.id, message.channel.id)).lines
+        const lines: string[] = (await LinkLists.findOneOrCreate(message.guild.id, message.channel.id)).lines
         if (lines.length === 0) {
             return reply(message.author, `> No Links for channel <#${message.channel.id}>`)
         } else {
@@ -65,7 +65,7 @@ class LinksAddHandler extends SubHandler {
 
         const lines: string[] = body.split('\n').map(line => line.trim()).filter(line => line)
 
-        const links = await Links.findOneOrCreate(message.guild.id, message.channel.id)
+        const links = await LinkLists.findOneOrCreate(message.guild.id, message.channel.id)
         const result = await links.insertLines(lines, args.index)
         dlog('HANDLER.links.add', `Added ${links}`)
 
@@ -103,7 +103,7 @@ class LinksRemoveHandler extends SubHandler {
         const indices = parseList(x => +x, indicesString)
         dlog('HANDLER.links.remove', `Indices: ${indices}`)
 
-        const links = await Links.findOneOrCreate(message.guild.id, message.channel.id)
+        const links = await LinkLists.findOneOrCreate(message.guild.id, message.channel.id)
         const result = await links.removeLines(indices)
 
         const n = result.removedIndices?.length || 0

@@ -1,5 +1,5 @@
 import * as database from './database/database'
-import LinkLists from './database/models/links'
+import { LinkLists } from './database/models/links'
 
 (async () => {
     const db = await database.connect()

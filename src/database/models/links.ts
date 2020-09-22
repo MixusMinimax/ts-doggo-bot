@@ -75,5 +75,4 @@ export class LinkList {
     }
 }
 
-const LinkLists = getModelForClass(LinkList)
-export default LinkLists
+export const LinkLists = getModelForClass(LinkList)
