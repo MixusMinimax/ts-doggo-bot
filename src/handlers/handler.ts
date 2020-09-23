@@ -8,6 +8,7 @@ import { HelpHandler } from './help.handler'
 import { InfoHandler } from './info.handler'
 import { LinksHandler } from './links.handler'
 import { PingHandler } from './ping.handler'
+import { PurgeHandler } from './purge.handler'
 import { SayHandler } from './say.handler'
 import { TimeHandler } from './time.handler'
 
@@ -21,6 +22,7 @@ export const handlers: IndexableHandlers = {
     ping: new PingHandler('ping'),
     time: new TimeHandler('time'),
     say: new SayHandler('say'),
+    purge: new PurgeHandler('purge'),
     links: new LinksHandler('links')
 }
 

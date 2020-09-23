@@ -70,43 +70,12 @@ client.on('message', async message => {
             else
                 console.error('Emoji "boiiiiii" not found!')
         }
+    } else {
+        const result = await handler.handleMessage(message)
 
-        return
-    }
-
-    // Tokenize command
-    const args = message.content.slice(config.prefix.length).replace('\n', ' ').trim().split(/ +/g)
-    const cmd = args.shift()?.toLowerCase()
-
-    if (cmd == null) {
-        console.error('no command supplied')
-        return
-    }
-
-    // Let's go with a few common example commands! Feel free to delete or change those.
-
-    switch (cmd) {
-        case 'purge':
-            // This command removes all messages from all users in the channel, up to 100.
-
-            // get the delete count, as an actual number.
-            const deleteCount = parseInt(args[0], 10)
-
-            // Ooooh nice, combined conditions. <3
-            if (!deleteCount || deleteCount < 2 || deleteCount > 100)
-                return message.reply('Please provide a number between 2 and 100 for the number of messages to delete')
-
-            // So we get our messages, and delete them. Simple enough, right?
-            const fetched = await message.channel.messages.fetch({ limit: deleteCount })
-            return message.channel.bulkDelete(fetched)
-                .catch(error => message.reply(`Couldn't delete messages because of: ${error}`))
-
-        default:
-            const result = await handler.handleMessage(message)
-
-            if (result) {
-                return message.channel.send(result)
-            }
+        if (result) {
+            return message.channel.send(result)
+        }
     }
 })
 
