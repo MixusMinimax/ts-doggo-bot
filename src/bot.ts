@@ -122,18 +122,6 @@ client.on('message', async message => {
             const time = `${today.getHours()}:${today.getMinutes()}`
             return message.channel.send(`The current time is: ${time} on ${date}`)
 
-        case 'info':
-            const embed = new MessageEmbed()
-                .setColor('#0099ff')
-                .setTitle(config.info.name)
-                .setURL(config.info.url)
-                .setAuthor(config.info.author.name, config.info.author.icon, config.info.author.url)
-                .setDescription(`Version ${package_json.version}`)
-                .addField('Description', config.info.description)
-                .setImage('https://cdn.discordapp.com/avatars/642869958635683851/780e2ba65003b8f8538c93bf7d8d431b.png?size=128')
-                .setTimestamp()
-            return message.channel.send(embed)
-
         case 'purge':
             // This command removes all messages from all users in the channel, up to 100.
 

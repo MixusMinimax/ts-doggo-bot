@@ -1,10 +1,9 @@
-import { ArgumentParser, Namespace } from 'argparse'
-import { Channel, Guild, User } from 'discord.js'
+import { Channel, DMChannel, Guild, NewsChannel, TextChannel, User } from 'discord.js'
 
 export interface ISimpleMessage {
     content: string,
     guild: Guild | null,
-    channel: Channel,
+    channel: TextChannel | DMChannel | NewsChannel,
     author: User
 }
 

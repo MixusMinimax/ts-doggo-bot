@@ -4,14 +4,16 @@ import { dlog } from '../tools/log'
 import parseMessage from '../tools/messageParser'
 import { Indexable, ISimpleMessage, PermissionLevelException } from '../tools/types'
 import { Handler } from './handler.type'
-import { HelpHandler } from './helpHandler'
-import { LinksHandler } from './linksHandler'
+import { HelpHandler } from './help.handler'
+import { InfoHandler } from './info.handler'
+import { LinksHandler } from './links.handler'
 
 interface IndexableHandlers extends Indexable<Handler> {
     links: LinksHandler
 }
 
 export const handlers: IndexableHandlers = {
+    info: new InfoHandler('info'),
     help: new HelpHandler('help'),
     links: new LinksHandler('links')
 }

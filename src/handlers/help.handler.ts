@@ -10,7 +10,7 @@ export class HelpHandler extends Handler {
 
     tab: number = 16
 
-    async execute(args: any, body: string, message: ISimpleMessage, options: HandlerOptions = {}): Promise<string> {
+    async execute(args: any, body: string, message: ISimpleMessage, options: HandlerOptions): Promise<string> {
 
         if (!options.handlers) {
             throw new Error('Handlers not initialized')
