@@ -1,4 +1,4 @@
-import { IFilter, isIFilter, traverseFilter } from './filter'
+import { IFilter, traverseFilter } from './filter'
 
 const filter: IFilter = {
     default: true,

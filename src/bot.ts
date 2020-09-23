@@ -1,10 +1,8 @@
-import 'discord.js'
-import { Client, MessageEmbed } from 'discord.js'
+import { Client } from 'discord.js'
 import fs from 'fs'
 import path from 'path'
 import { exit } from 'process'
 import config from '../config/config.json'
-import package_json from '../package.json'
 import * as database from './database/database'
 import * as handler from './handlers/handler'
 import { dlog } from './tools/log'
@@ -16,33 +14,27 @@ const client = new Client()
 
 client.on('ready', () => {
     dlog('BOT.ready', `Bot has started, with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.`)
-    // Example of changing the bot's playing game to something useful. `client.user` is what the
-    // docs refer to as the "ClientUser".
-    client.user?.setActivity(`Serving ${client.guilds.cache.size} servers`)
+    client.user?.setActivity(`Barking at fucking nothing`)
 })
 
 client.on('guildCreate', guild => {
     // This event triggers when the bot joins a guild.
     dlog('BOT.guildCreate', `New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`)
-    client.user?.setActivity(`Serving ${client.guilds.cache.size} servers`)
 })
 
 client.on('guildDelete', guild => {
     // this event triggers when the bot is removed from a guild.
     dlog('BOT.guildDelete', `I have been removed from: ${guild.name} (id: ${guild.id})`)
-    client.user?.setActivity(`Serving ${client.guilds.cache.size} servers`)
 })
 
 client.on('message', async message => {
     // This event will run on every single message received, from any channel or DM.
 
-    // It's good practice to ignore other bots. This also makes your bot ignore itself
-    // and not get into a spam loop (we call that "botception").
+    // Ignore other bots
     if (message.author.bot) return
     if (message.guild == null) return
 
-    // Also good practice to ignore any message that does not start with our prefix,
-    // which is set in the configuration file.
+    // Non-commands
     if (message.content.indexOf(config.prefix) !== 0) {
 
         if (message.content.toLowerCase().includes('doggo')) {
@@ -82,10 +74,7 @@ client.on('message', async message => {
         return
     }
 
-    // Here we separate our "command" name, and our "arguments" for the command.
-    // e.g. if we have the message "+say Is this the real life?" , we'll get the following:
-    // command = say
-    // args = ["Is", "this", "the", "real", "life?"]
+    // Tokenize command
     const args = message.content.slice(config.prefix.length).replace('\n', ' ').trim().split(/ +/g)
     const cmd = args.shift()?.toLowerCase()
 
@@ -97,15 +86,6 @@ client.on('message', async message => {
     // Let's go with a few common example commands! Feel free to delete or change those.
 
     switch (cmd) {
-        case 'ping':
-            // Calculates ping between sending a message and editing it, giving a nice round-trip latency.
-            // The second ping is an average latency between the bot and the websocket server (one-way, not round-trip)
-            message.channel.send('Pinging...').then(m => {
-                const ping = m.createdTimestamp - message.createdTimestamp
-                m.edit(`**Pong!** API latency: \`${ping}ms\``)
-            })
-            break
-
         case 'say':
             // makes the bot say something and delete the message. As an example, it's open to anyone to use.
             // To get the "message" itself we join the `args` back into a string with spaces:

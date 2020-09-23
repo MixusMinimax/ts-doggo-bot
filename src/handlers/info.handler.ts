@@ -1,9 +1,9 @@
-import ThrowingArgumentParser from "../tools/throwingArgparse"
-import { ISimpleMessage } from "../tools/types"
-import { Handler, HandlerOptions } from "./handler.type"
+import ThrowingArgumentParser from '../tools/throwingArgparse'
+import { ISimpleMessage } from '../tools/types'
+import { Handler, HandlerOptions } from './handler.type'
 import config from '../../config/config.json'
 import package_json from '../../package.json'
-import { MessageEmbed } from "discord.js"
+import { MessageEmbed } from 'discord.js'
 
 export class InfoHandler extends Handler {
 

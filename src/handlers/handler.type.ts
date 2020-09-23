@@ -1,8 +1,7 @@
-import argparse, { ArgumentParser } from 'argparse'
+import argparse from 'argparse'
 import config from '../../config/config.json'
 import ThrowingArgumentParser from '../tools/throwingArgparse'
 import { Indexable, ISimpleMessage } from '../tools/types'
-import { dlog } from '../tools/log'
 
 export interface HandlerOptions {
     handlers?: Indexable<Handler>,

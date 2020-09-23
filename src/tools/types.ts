@@ -1,10 +1,11 @@
-import { Channel, DMChannel, Guild, NewsChannel, TextChannel, User } from 'discord.js'
+import { DMChannel, Guild, NewsChannel, TextChannel, User } from 'discord.js'
 
 export interface ISimpleMessage {
     content: string,
     guild: Guild | null,
     channel: TextChannel | DMChannel | NewsChannel,
-    author: User
+    author: User,
+    createdTimestamp: number
 }
 
 export interface Indexable<T> {
