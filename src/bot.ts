@@ -86,12 +86,6 @@ client.on('message', async message => {
     // Let's go with a few common example commands! Feel free to delete or change those.
 
     switch (cmd) {
-        case 'time':
-            const today = new Date()
-            const date = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
-            const time = `${today.getHours()}:${today.getMinutes()}`
-            return message.channel.send(`The current time is: ${time} on ${date}`)
-
         case 'purge':
             // This command removes all messages from all users in the channel, up to 100.
 

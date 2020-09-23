@@ -9,6 +9,7 @@ import { InfoHandler } from './info.handler'
 import { LinksHandler } from './links.handler'
 import { PingHandler } from './ping.handler'
 import { SayHandler } from './say.handler'
+import { TimeHandler } from './time.handler'
 
 interface IndexableHandlers extends Indexable<Handler> {
     links: LinksHandler
@@ -18,6 +19,7 @@ export const handlers: IndexableHandlers = {
     info: new InfoHandler('info'),
     help: new HelpHandler('help'),
     ping: new PingHandler('ping'),
+    time: new TimeHandler('time'),
     say: new SayHandler('say'),
     links: new LinksHandler('links')
 }
