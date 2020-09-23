@@ -35,6 +35,7 @@ class LinksListHandler extends SubHandler {
             throw new Error('No Guild')
         }
         const lines: string[] = (await LinkLists.findOneOrCreate(message.guild.id, message.channel.id)).lines
+        dlog('HANDLER.links.list', `${lines.length} Lines for channel ${message.channel.toString()}`)
         if (lines.length === 0) {
             return reply(message.author, `> No Links for channel <#${message.channel.id}>`)
         } else {
@@ -67,7 +68,7 @@ class LinksAddHandler extends SubHandler {
 
         const links = await LinkLists.findOneOrCreate(message.guild.id, message.channel.id)
         const result = await links.insertLines(lines, args.index)
-        dlog('HANDLER.links.add', `Added ${links}`)
+        dlog('HANDLER.links.add', `Added ${result.addedLines}`)
 
         if (result?.addedLines?.length) {
             return reply(message.author, `> Successfully added ${result.addedLines.length} ${singularPlural(result.addedLines.length, 'link')}!`)

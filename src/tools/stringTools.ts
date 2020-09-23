@@ -139,3 +139,7 @@ export function parseList<T>(parseElement: (element: string) => T, s: string): T
 export function singularPlural(amount: number, singular: string, plural?: string) {
     return amount === 1 && singular || plural || singular + 's'
 }
+
+export function onlyUnique<T>(value: T, index: number, self: T[]) {
+    return self.indexOf(value) === index
+}

@@ -1,8 +1,4 @@
-import { Indexable } from './types'
-
-interface IFilter extends Indexable<boolean | IFilter> {
-    default: boolean | IFilter
-}
+import { IFilter, isIFilter, traverseFilter } from './filter'
 
 const filter: IFilter = {
     default: true,
@@ -28,7 +24,7 @@ const filter: IFilter = {
             args: false
         },
         links: {
-            default: false,
+            default: true,
             add: true,
             remove: true,
         },
@@ -36,30 +32,22 @@ const filter: IFilter = {
     }
 }
 
-function isIFilter(object: any): object is IFilter {
-    return object && (object as IFilter).default !== undefined
-}
-
-export function isEnabled(tag: string): false | string {
-
+export function isEnabled(tag: string): { enabled: boolean, newTag: string } {
     const tokens = tag.split(/:|\.|\//)
-    tag = ''
-
-    let current: undefined | boolean | IFilter = filter
-
-    for (let token of tokens) {
-        token = token || 'default'
-        const textToken = token !== 'default' && token || ''
-        if (!isIFilter(current)) return false
-        tag = tag && tag + ':' + textToken || textToken
-        current = current[token]
+    const ret = traverseFilter(filter, tokens)
+    if (ret !== undefined) {
+        const { enabled, path } = ret
+        return {
+            enabled,
+            newTag: path
+                .map(t => t === 'default' ? '' : t)
+                .join(':')
+                .replace(/:*$/, '')
+        }
     }
-
-    while (isIFilter(current)) {
-        current = current.default
+    return {
+        enabled: false, newTag: ''
     }
-
-    return current && tag.replace(/:*$/, '') || false
 }
 
 export function dformat(tag: string, message?: any, {
@@ -71,8 +59,8 @@ export function dformat(tag: string, message?: any, {
     repeat?: string,
     delims?: string[]
 } = {}): false | string {
-    const newTag = isEnabled(tag)
-    if (newTag !== false) {
+    const { enabled, newTag } = isEnabled(tag)
+    if (enabled) {
         const offset = 2 + newTag.length + delims[0].length
         const paddingLength = tab - offset - delims[1].length
         const paddingTemplate = repeat.repeat(tab)

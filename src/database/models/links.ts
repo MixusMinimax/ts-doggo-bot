@@ -1,5 +1,6 @@
 import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose'
 import { dlog } from '../../tools/log'
+import { onlyUnique } from '../../tools/stringTools'
 
 export interface ILinksUpdateResult {
     links: LinkList,
@@ -46,7 +47,10 @@ export class LinkList {
 
     async removeLines(this: DocumentType<LinkList>, indices: number[]): Promise<ILinksUpdateResult> {
         // Just as an accurate presentation of how many lines were removed
-        indices = indices.filter(index => index >= 0 && index < this.lines.length).sort()
+        indices = indices
+            .filter(index => index >= 0 && index < this.lines.length)
+            .filter(onlyUnique)
+            .sort((a, b) => a - b)
         if (indices.length === 0) {
             return {
                 links: this,

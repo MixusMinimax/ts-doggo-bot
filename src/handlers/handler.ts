@@ -25,7 +25,7 @@ export async function handle(tokens: string[], body: string, message: ISimpleMes
             try {
                 const args = handler.parser.parseKnownArgs(tokens)
 
-                dlog('HANDLER..args', args)
+                dlog('HANDLER..args', `${args}`)
 
                 if (args[0].help && args[0].command?.[0]) {
                     args[0].help = false

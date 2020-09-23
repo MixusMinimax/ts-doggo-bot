@@ -56,8 +56,6 @@ export abstract class ParentHandler extends Handler {
         if (handler) {
             const parsedArgs = handler.parser.parseKnownArgs(tokens)
 
-            dlog(`HANDLER.${command}`, parsedArgs)
-
             if (parsedArgs[0].help) {
                 return `<@${message.author.id}>\n`
                     + `> Help for the command \`${this.prog} ${command}\`:\n`
