@@ -23,7 +23,7 @@ export class LinkList {
     @prop({ type: () => [String], default: [] })
     lines!: string[]
 
-    async insertLines(this: DocumentType<LinkList>, lines: string[], at: number): Promise<ILinksUpdateResult> {
+    async insertLines(this: DocumentType<LinkList>, lines: string[], at: number = -1): Promise<ILinksUpdateResult> {
         if (lines.length === 0) {
             return {
                 links: this,

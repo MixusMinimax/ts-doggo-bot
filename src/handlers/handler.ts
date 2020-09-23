@@ -16,7 +16,7 @@ export const handlers: IndexableHandlers = {
     links: new LinksHandler('links')
 }
 
-export const handle = async function (tokens: string[], body: string, message: ISimpleMessage): Promise<string | undefined> {
+export async function handle(tokens: string[], body: string, message: ISimpleMessage): Promise<string | undefined> {
     const cmd: string | undefined = tokens.shift()
 
     if (cmd) {
@@ -60,7 +60,7 @@ export const handle = async function (tokens: string[], body: string, message: I
     }
 }
 
-export const handleMessage = async function (message: Message): Promise<string | undefined> {
+export async function handleMessage(message: Message): Promise<string | undefined> {
     if (!message || !message.guild || !message.channel) {
         throw new Error('Invalid message!')
     }
