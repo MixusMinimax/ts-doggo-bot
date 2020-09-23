@@ -1,6 +1,6 @@
 import { User } from 'discord.js'
 
-export const tokenize = function (s: string | undefined): string[] {
+export function tokenize(s: string | undefined): string[] {
     return (
         s?.match(/"(\\"|[^"])*"|'(\\'|[^'])*'|`.*`|(\\ |\S)+/g) || []
     ).map(token =>
@@ -10,7 +10,7 @@ export const tokenize = function (s: string | undefined): string[] {
     )
 }
 
-export const wordWrap = function (s: string, {
+export function wordWrap(s: string, {
     max = 128, indent = 0, startOffset = 0, maxLines = 4
 }: {
     max?: number, indent?: number, startOffset?: number, maxLines?: number
@@ -62,7 +62,7 @@ export enum EOnLongName {
     NEXT_LINE, CUT_NAME, INDENT
 }
 
-export const nameDescription = function (name: string, description: string, {
+export function nameDescription(name: string, description: string, {
     tab = 16,
     maxLength = 128,
     maxLines = 4,
@@ -123,11 +123,11 @@ export const nameDescription = function (name: string, description: string, {
     return result
 }
 
-export const reply = function (user: User, message: string, args: { delim?: string } = {}): string {
+export function reply(user: User, message: string, args: { delim?: string } = {}): string {
     return `<@${user.id}>${args.delim || '\n'}${message}`
 }
 
-export const parseList = function <T>(parseElement: (element: string) => T, s: string): T[] {
+export function parseList<T>(parseElement: (element: string) => T, s: string): T[] {
     let x: string = s
     x = x.match(/\(([^()]+)\)/)?.[1] || x
     x = x.match(/\[([^()]+)\]/)?.[1] || x
@@ -136,6 +136,6 @@ export const parseList = function <T>(parseElement: (element: string) => T, s: s
     return tokens.map(parseElement)
 }
 
-export const singularPlural = function (amount: number, singular: string, plural?: string) {
+export function singularPlural(amount: number, singular: string, plural?: string) {
     return amount === 1 && singular || plural || singular + 's'
 }

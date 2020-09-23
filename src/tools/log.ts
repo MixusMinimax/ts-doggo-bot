@@ -40,7 +40,7 @@ function isIFilter(object: any): object is IFilter {
     return object && (object as IFilter).default !== undefined
 }
 
-export const isEnabled = function (tag: string): false | string {
+export function isEnabled(tag: string): false | string {
 
     const tokens = tag.split(/:|\.|\//)
     tag = ''
@@ -62,7 +62,7 @@ export const isEnabled = function (tag: string): false | string {
     return current && tag.replace(/:*$/, '') || false
 }
 
-export const dformat = function (tag: string, message?: any, {
+export function dformat(tag: string, message?: any, {
     tab = 28,
     repeat = '.',
     delims = [' ', ' ']
@@ -82,15 +82,17 @@ export const dformat = function (tag: string, message?: any, {
     return false
 }
 
-export const dPrintToStream = function (cb: (message?: any, ...optionalParams: any[]) => void, tag: string, message?: any, ...optionalParams: any[]) {
+export function dPrintToStream(cb: (message?: any, ...optionalParams: any[]) => void, tag: string, message?: any, ...optionalParams: any[]) {
     const result = dformat(tag, message)
     if (result !== false) {
         cb(result, ...optionalParams)
     }
 }
 
-export const dlog = (tag: string, message?: any, ...optionalParams: any[]) =>
+export function dlog(tag: string, message?: any, ...optionalParams: any[]) {
     dPrintToStream(console.log, tag, message, ...optionalParams)
+}
 
-export const derror = (tag: string, message?: any, ...optionalParams: any[]) =>
+export function derror(tag: string, message?: any, ...optionalParams: any[]) {
     dPrintToStream(console.error, tag, message, ...optionalParams)
+}
