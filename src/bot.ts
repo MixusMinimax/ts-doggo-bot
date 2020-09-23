@@ -86,16 +86,6 @@ client.on('message', async message => {
     // Let's go with a few common example commands! Feel free to delete or change those.
 
     switch (cmd) {
-        case 'say':
-            // makes the bot say something and delete the message. As an example, it's open to anyone to use.
-            // To get the "message" itself we join the `args` back into a string with spaces:
-            const sayMessage = args.join(' ')
-            // Then we delete the command message (sneaky, right?). The catch just ignores the error with a cute smiley thing.
-            message.delete().catch(() => { })
-            // And we get the bot to say the thing:
-            message.channel.send(sayMessage)
-            break
-
         case 'time':
             const today = new Date()
             const date = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`

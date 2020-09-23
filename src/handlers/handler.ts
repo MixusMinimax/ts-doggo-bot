@@ -2,12 +2,13 @@ import { Message } from 'discord.js'
 import config from '../../config/config.json'
 import { dlog } from '../tools/log'
 import parseMessage from '../tools/messageParser'
-import { Indexable, ISimpleMessage, PermissionLevelException } from '../tools/types'
+import { Indexable, PermissionLevelException } from '../tools/types'
 import { Handler } from './handler.type'
 import { HelpHandler } from './help.handler'
 import { InfoHandler } from './info.handler'
 import { LinksHandler } from './links.handler'
 import { PingHandler } from './ping.handler'
+import { SayHandler } from './say.handler'
 
 interface IndexableHandlers extends Indexable<Handler> {
     links: LinksHandler
@@ -17,10 +18,11 @@ export const handlers: IndexableHandlers = {
     info: new InfoHandler('info'),
     help: new HelpHandler('help'),
     ping: new PingHandler('ping'),
+    say: new SayHandler('say'),
     links: new LinksHandler('links')
 }
 
-export async function handle(tokens: string[], body: string, message: ISimpleMessage): Promise<string | undefined> {
+export async function handle(tokens: string[], body: string, message: Message): Promise<string | undefined> {
     const cmd: string | undefined = tokens.shift()
 
     if (cmd) {

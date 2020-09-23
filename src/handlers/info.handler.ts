@@ -1,13 +1,12 @@
-import ThrowingArgumentParser from '../tools/throwingArgparse'
-import { ISimpleMessage } from '../tools/types'
-import { Handler, HandlerOptions } from './handler.type'
+import { Message, MessageEmbed } from 'discord.js'
 import config from '../../config/config.json'
 import package_json from '../../package.json'
-import { MessageEmbed } from 'discord.js'
+import ThrowingArgumentParser from '../tools/throwingArgparse'
+import { Handler, HandlerOptions } from './handler.type'
 
 export class InfoHandler extends Handler {
 
-    async execute(args: any, body: string, message: ISimpleMessage, options: HandlerOptions): Promise<void> {
+    async execute(args: any, body: string, message: Message, options: HandlerOptions): Promise<void> {
         const embed = new MessageEmbed()
             .setColor('#0099ff')
             .setTitle(config.info.name)

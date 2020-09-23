@@ -1,16 +1,16 @@
 import argparse from 'argparse'
+import { Message } from 'discord.js'
 import config from '../../config/config.json'
 import { dlog } from '../tools/log'
 import { nameDescription, reply } from '../tools/stringTools'
 import ThrowingArgumentParser from '../tools/throwingArgparse'
-import { ISimpleMessage } from '../tools/types'
 import { Handler, HandlerOptions } from './handler.type'
 
 export class HelpHandler extends Handler {
 
     tab: number = 16
 
-    async execute(args: any, body: string, message: ISimpleMessage, options: HandlerOptions): Promise<string> {
+    async execute(args: any, body: string, message: Message, options: HandlerOptions): Promise<string> {
 
         if (!options.handlers) {
             throw new Error('Handlers not initialized')
@@ -23,7 +23,7 @@ export class HelpHandler extends Handler {
 
         if (command) {
             dlog('HANDLER.help', 'command: ' + command)
-            const result = await options.handle?.call(null, [command, '-h'].concat(args.command || []), body, message)
+            const result = options.handle ? await options.handle([command, '-h'].concat(args.command || []), body, message) : null
             if (result) {
                 return result
             } else {

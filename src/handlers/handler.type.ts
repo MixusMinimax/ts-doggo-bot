@@ -1,11 +1,12 @@
 import argparse from 'argparse'
+import { Message } from 'discord.js'
 import config from '../../config/config.json'
 import ThrowingArgumentParser from '../tools/throwingArgparse'
-import { Indexable, ISimpleMessage } from '../tools/types'
+import { Indexable } from '../tools/types'
 
 export interface HandlerOptions {
     handlers?: Indexable<Handler>,
-    handle?: (tokens: string[], body: string, message: ISimpleMessage) => Promise<string | undefined>
+    handle?: (tokens: string[], body: string, message: Message) => Promise<string | undefined>
 }
 
 export abstract class Handler {
@@ -16,7 +17,7 @@ export abstract class Handler {
         this.prog = config.prefix + prog
     }
 
-    abstract execute(args: any, body: string, message: ISimpleMessage, options?: HandlerOptions): Promise<void | string>
+    abstract execute(args: any, body: string, message: Message, options?: HandlerOptions): Promise<void | string>
 
     abstract parser: ThrowingArgumentParser
 
@@ -47,7 +48,7 @@ export abstract class ParentHandler extends Handler {
         this.defaultSubCommand = args.defaultSubCommand
     }
 
-    async execute(args: any, body: string, message: ISimpleMessage, _options: HandlerOptions = {}): Promise<void | string> {
+    async execute(args: any, body: string, message: Message, _options: HandlerOptions = {}): Promise<void | string> {
         const tokens: string[] = (args.command && args.command.length > 0 && args.command) || []
         const command: string = tokens?.shift() || this.defaultSubCommand
         const handler = this.subHandlers[command]

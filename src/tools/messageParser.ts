@@ -1,6 +1,6 @@
+import { Message } from 'discord.js'
 import config from '../../config/config.json'
 import { tokenize } from './stringTools'
-import { ISimpleMessage } from './types'
 
 
 interface ParseReturnType {
@@ -10,7 +10,7 @@ interface ParseReturnType {
     tokens: string[]
 }
 
-export default function parse(message: ISimpleMessage): ParseReturnType {
+export default function parse(message: Message): ParseReturnType {
 
     let clean = message.content.replace('\r\n', '\n').replace('\r', '\n').replace(/^[\s\n]+|[\s\n]+$/g, '')
 
