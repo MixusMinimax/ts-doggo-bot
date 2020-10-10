@@ -143,3 +143,14 @@ export function singularPlural(amount: number, singular: string, plural?: string
 export function onlyUnique<T>(value: T, index: number, self: T[]) {
     return self.indexOf(value) === index
 }
+
+export function padStart(maxLength: number, str: string) {
+    return (template: TemplateStringsArray, ...vars: any[]) => {
+        let ret = ''
+        var arr = [...template]
+        arr.forEach((a, i) => {
+            ret += String(a) + ((vars[i] !== undefined) ? String(vars[i]).padStart(maxLength, str) : '')
+        })
+        return ret
+    }
+}

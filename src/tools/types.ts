@@ -14,3 +14,7 @@ export function checkPermission(required: number, actual: number): void {
     if (required > actual)
         throw new PermissionLevelException(required, actual)
 }
+
+export class ClearTextError extends Error {
+    
+}

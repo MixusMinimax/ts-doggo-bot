@@ -22,7 +22,7 @@ export class LinksHandler extends ParentHandler {
                 '',
                 '  list      List links of current channel.',
                 '  add       Add links to current channel.',
-                '  remove    Remove links from current channel'
+                '  remove    Remove links from current channel.'
             ].join('\n')
         })
     }

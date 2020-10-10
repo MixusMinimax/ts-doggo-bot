@@ -28,7 +28,14 @@ const filter: IFilter = {
             add: true,
             remove: true,
         },
+        permission: {
+            default: true,
+        },
         help: true
+    },
+    UTILS: {
+        default: false,
+        discord: true
     }
 }
 

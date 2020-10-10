@@ -2,11 +2,12 @@ import { Message } from 'discord.js'
 import config from '../../config/config.json'
 import { dlog } from '../tools/log'
 import parseMessage from '../tools/messageParser'
-import { Indexable, PermissionLevelException } from '../tools/types'
+import { ClearTextError, Indexable, PermissionLevelException } from '../tools/types'
 import { Handler } from './handler.type'
 import { HelpHandler } from './help.handler'
 import { InfoHandler } from './info.handler'
 import { LinksHandler } from './links.handler'
+import { PermissionHandler } from './permission.handler'
 import { PingHandler } from './ping.handler'
 import { PurgeHandler } from './purge.handler'
 import { SayHandler } from './say.handler'
@@ -23,7 +24,8 @@ export const handlers: IndexableHandlers = {
     time: new TimeHandler('time'),
     say: new SayHandler('say'),
     purge: new PurgeHandler('purge'),
-    links: new LinksHandler('links')
+    links: new LinksHandler('links'),
+    permission: new PermissionHandler('permission'),
 }
 
 export async function handle(tokens: string[], body: string, message: Message): Promise<string | undefined> {
@@ -56,7 +58,9 @@ export async function handle(tokens: string[], body: string, message: Message): 
             } catch (error) {
                 if (error instanceof PermissionLevelException) {
                     return `> ${error.message}`
-                } else if (error instanceof Error) {
+                } else if (error instanceof ClearTextError) {
+                    return error.message
+                }else if (error instanceof Error) {
                     return '```\n' + error.message + '\n```'
                 } else {
                     return '> Unknown Error'
