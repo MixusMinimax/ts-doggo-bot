@@ -62,10 +62,11 @@ export function findMembers(
     return stringSimilarity
         .findBestMatch(searchTerm, guild.members.cache.map(e => e.displayName))
         .ratings
-        .slice(0, maxResults)
         .map(match => ({
             member: (guild.members.cache.find(e => e.displayName === match.target) || null)!,
             certainty: match.rating
         }))
         .filter(result => result.member && result.certainty >= minCertainty)
+        .sort((a, b) => b.certainty - a.certainty)
+        .slice(0, maxResults)
 }
