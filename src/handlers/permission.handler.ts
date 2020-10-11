@@ -4,13 +4,13 @@ import { tryFindMember } from '../tools/discord.utils'
 import { dlog } from '../tools/log'
 import ThrowingArgumentParser from '../tools/throwingArgparse'
 import { ClearTextError } from '../tools/types'
-import { Handler, HandlerOptions } from './handler.type'
+import { Handler, HandlerContext } from './handler.type'
 
 export class PermissionHandler extends Handler {
 
     async execute(
         { reset, user: _user, level: _level }: { reset: boolean, user: string | null, level: string | null, },
-        body: string, message: Message, options: HandlerOptions
+        body: string, message: Message, options: HandlerContext
     ): Promise<string> {
         let level = _level !== null ? +_level : null
         if (level !== null && (isNaN(level) || level < 0 || level > 10)) {

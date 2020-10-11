@@ -16,11 +16,7 @@ import { SayHandler } from './say.handler'
 import { SearchMemberHandler } from './searchMember.handler'
 import { TimeHandler } from './time.handler'
 
-interface IndexableHandlers extends Indexable<Handler> {
-    links: LinksHandler
-}
-
-export const handlers: IndexableHandlers = {
+export const handlers: Indexable<Handler> = {
     info: new InfoHandler('info'),
     help: new HelpHandler('help'),
     ping: new PingHandler('ping'),
@@ -33,6 +29,7 @@ export const handlers: IndexableHandlers = {
 }
 
 export async function handle(tokens: string[], body: string, message: Message): Promise<string | undefined> {
+
     const cmd: string | undefined = tokens.shift()
 
     if (cmd) {
@@ -71,7 +68,8 @@ export async function handle(tokens: string[], body: string, message: Message): 
     }
 }
 
-export async function handleMessage(message: Message): Promise<string | undefined> {
+export async function handleMessage(message: Message): Promise<string | void> {
+
     if (!message || !message.guild || !message.channel) {
         throw new Error('Invalid message!')
     }

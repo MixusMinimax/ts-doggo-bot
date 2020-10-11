@@ -4,13 +4,13 @@ import config from '../../config/config.json'
 import { dlog } from '../tools/log'
 import { nameDescription, reply } from '../tools/stringTools'
 import ThrowingArgumentParser from '../tools/throwingArgparse'
-import { Handler, HandlerOptions } from './handler.type'
+import { Handler, HandlerContext } from './handler.type'
 
 export class HelpHandler extends Handler {
 
     tab: number = 16
 
-    async execute(args: any, body: string, message: Message, options: HandlerOptions): Promise<string> {
+    async execute(args: any, body: string, message: Message, options: HandlerContext): Promise<string> {
 
         if (!options.handlers) {
             throw new Error('Handlers not initialized')

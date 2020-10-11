@@ -1,11 +1,11 @@
 
 import { Message } from 'discord.js'
 import ThrowingArgumentParser from '../tools/throwingArgparse'
-import { Handler, HandlerOptions } from './handler.type'
+import { Handler, HandlerContext } from './handler.type'
 
 export class SayHandler extends Handler {
 
-    async execute(_args: any, _body: string, message: Message, _options: HandlerOptions): Promise<void> {
+    async execute(_args: any, _body: string, message: Message, _options: HandlerContext): Promise<void> {
         const sayMessage = message.content.slice(this.prog.length).trim()
         message.delete().catch(() => { })
         message.channel.send(sayMessage)

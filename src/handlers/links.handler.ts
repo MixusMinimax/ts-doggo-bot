@@ -5,7 +5,7 @@ import { LinkLists } from '../database/models/links'
 import { dlog } from '../tools/log'
 import { parseList, reply, singularPlural } from '../tools/stringTools'
 import ThrowingArgumentParser from '../tools/throwingArgparse'
-import { HandlerOptions, ParentHandler, SubHandler } from './handler.type'
+import { HandlerContext, ParentHandler, SubHandler } from './handler.type'
 
 export class LinksHandler extends ParentHandler {
 
@@ -30,7 +30,7 @@ export class LinksHandler extends ParentHandler {
 
 class LinksListHandler extends SubHandler {
 
-    async execute(_args: any, _body: string, message: Message, _options: HandlerOptions = {}): Promise<string> {
+    async execute(_args: any, _body: string, message: Message, _options: HandlerContext = {}): Promise<string> {
         if (!message.guild) {
             throw new Error('No Guild')
         }
@@ -58,7 +58,7 @@ class LinksListHandler extends SubHandler {
 
 class LinksAddHandler extends SubHandler {
 
-    async execute(args: any, body: string, message: Message, _options: HandlerOptions = {}): Promise<string> {
+    async execute(args: any, body: string, message: Message, _options: HandlerContext = {}): Promise<string> {
 
         if (!message.guild) {
             throw new Error('No Guild')
@@ -94,7 +94,7 @@ class LinksAddHandler extends SubHandler {
 
 class LinksRemoveHandler extends SubHandler {
 
-    async execute(args: any, body: string, message: Message, _options: HandlerOptions = {}): Promise<string> {
+    async execute(args: any, body: string, message: Message, _options: HandlerContext = {}): Promise<string> {
 
         if (!message.guild) {
             throw new Error('No Guild')

@@ -2,7 +2,7 @@ import { Message } from 'discord.js'
 import { findMembers } from '../tools/discord.utils'
 import { padStart } from '../tools/stringTools'
 import ThrowingArgumentParser, { NumberRange } from '../tools/throwingArgparse'
-import { Handler, HandlerOptions } from './handler.type'
+import { Handler, HandlerContext } from './handler.type'
 
 export class SearchMemberHandler extends Handler {
 
@@ -12,7 +12,7 @@ export class SearchMemberHandler extends Handler {
         }: {
             user: string, limit: number, minCertainty: number, mentions: boolean
         },
-        body: string, message: Message, options: HandlerOptions
+        body: string, message: Message, options: HandlerContext
     ): Promise<string> {
         const results = findMembers(message.guild!, user, {
             maxResults: limit,

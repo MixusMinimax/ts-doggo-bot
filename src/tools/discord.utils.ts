@@ -1,14 +1,11 @@
-import { Guild, GuildMember, User } from 'discord.js'
+import { Guild, GuildMember } from 'discord.js'
 import stringSimilarity from 'string-similarity'
 import { dlog } from './log'
 import { ClearTextError } from './types'
 
-export class UserNotFoundException extends ClearTextError {
-
-}
+export class UserNotFoundException extends ClearTextError { }
 
 export function tryFindMember(guild: Guild, searchTerm: string, minCertainty: number = 0.5): GuildMember | never {
-
     const { member, certainty } = findMember(guild, searchTerm)
     if (member === null || certainty < 1e-3) {
         throw new UserNotFoundException(`User not found: \`${searchTerm}\``)
