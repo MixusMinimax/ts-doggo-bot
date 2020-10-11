@@ -7,19 +7,23 @@ import { Handler, HandlerOptions } from './handler.type'
 export class SearchMemberHandler extends Handler {
 
     async execute(
-        { user: user, limit }: { user: string, limit: number },
+        {
+            user: user, limit, minCertainty, mentions
+        }: {
+            user: string, limit: number, minCertainty: number, mentions: boolean
+        },
         body: string, message: Message, options: HandlerOptions
     ): Promise<string> {
         const results = findMembers(message.guild!, user, {
             maxResults: limit,
-            minCertainty: 0
+            minCertainty
         })
         if (results.length) {
             return `> Found \`${results.length}\` Members:\n` +
                 results
                     .map(result =>
                         padStart(2, '0')`\`[${Math.round(result.certainty * 100)}%]\` ` +
-                        `${result.member.toString()}`
+                        `${mentions ? result.member.toString() : result.member.displayName}`
                     )
                     .join('\n')
         } else {
@@ -39,10 +43,16 @@ export class SearchMemberHandler extends Handler {
             help: 'Limit the amount of results'
         })
         _parser.addArgument(['-c', '--min-certainty'], {
-            defaultValue: 0,
+            defaultValue: 1e-3,
             type: NumberRange(0, 1),
             metavar: 'N',
+            dest: 'minCertainty',
             help: 'Only show results with a certainty of at least N (0-1)'
+        })
+        _parser.addArgument(['-m', '--mentions'], {
+            action: 'storeTrue',
+            dest: 'mentions',
+            help: 'Use mentions for search results'
         })
         _parser.addArgument('user', {
             type: String,
