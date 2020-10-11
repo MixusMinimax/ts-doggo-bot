@@ -16,15 +16,15 @@ export class PermissionHandler extends Handler {
         if (level !== null && (isNaN(level) || level < 0 || level > 10)) {
             throw new Error(`Error: argument "level": Invalid choice: ${_level} (choose from (0-10))`)
         }
-        let user = message.author
+        let user = message.member!
         if (_user !== null) {
-            user = tryFindMember(message.guild!, _user).user
+            user = tryFindMember(message.guild!, _user, 0.5)
         }
 
         // TODO: Query Permission Override or calculate contextual permission from User Roles
         // Also, override permissions or remove override
 
-        return user.toString()
+        return user.user.toString()
     }
 
     get parser() {

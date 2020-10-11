@@ -2,6 +2,8 @@ import { Message } from 'discord.js'
 import config from '../../config/config.json'
 import { dlog } from '../tools/log'
 import parseMessage from '../tools/messageParser'
+import { reply } from '../tools/stringTools'
+import { PrintHelpError } from '../tools/throwingArgparse'
 import { ClearTextError, Indexable, PermissionLevelException } from '../tools/types'
 import { Handler } from './handler.type'
 import { HelpHandler } from './help.handler'
@@ -11,6 +13,7 @@ import { PermissionHandler } from './permission.handler'
 import { PingHandler } from './ping.handler'
 import { PurgeHandler } from './purge.handler'
 import { SayHandler } from './say.handler'
+import { SearchMemberHandler } from './searchMember.handler'
 import { TimeHandler } from './time.handler'
 
 interface IndexableHandlers extends Indexable<Handler> {
@@ -26,6 +29,7 @@ export const handlers: IndexableHandlers = {
     purge: new PurgeHandler('purge'),
     links: new LinksHandler('links'),
     permission: new PermissionHandler('permission'),
+    search: new SearchMemberHandler('search'),
 }
 
 export async function handle(tokens: string[], body: string, message: Message): Promise<string | undefined> {
@@ -39,28 +43,21 @@ export async function handle(tokens: string[], body: string, message: Message): 
 
                 dlog('HANDLER..args', `${args}`)
 
-                if (args[0].help && args[0].command?.[0]) {
-                    args[0].help = false
-                    args[0].command.splice(1, 0, '-h')
-                }
-
-                if (args[0].help) {
-                    return `<@${message.author.id}>\n`
-                        + `> Help for the command \`${config.prefix}${cmd}\`:\n`
-                        + '```\n' + handler.formatHelp(args[0]) + '\n```'
-                } else {
-                    return (await handler.execute(args[0], body, message, {
-                        handlers,
-                        handle
-                    })) || undefined
-                }
-
+                return (await handler.execute(args[0], body, message, {
+                    handlers,
+                    handle
+                })) || undefined
             } catch (error) {
                 if (error instanceof PermissionLevelException) {
                     return `> ${error.message}`
+                } else if (error instanceof PrintHelpError) {
+                    return reply(message.author,
+                        `> Help for the command \`${config.prefix}${cmd}\`:\n`
+                        + '```\n' + error.message + '\n```'
+                    )
                 } else if (error instanceof ClearTextError) {
                     return error.message
-                }else if (error instanceof Error) {
+                } else if (error instanceof Error) {
                     return '```\n' + error.message + '\n```'
                 } else {
                     return '> Unknown Error'
