@@ -4,7 +4,9 @@ import { Message } from 'discord.js'
 import ThrowingArgumentParser, { NumberRange } from '../tools/throwingArgparse'
 import { Indexable } from '../tools/types'
 import { GuildSettingsModel } from '../database/models/settings'
-import { nameDescription, reply } from '../tools/stringTools'
+import { nameDescription, padStart, reply } from '../tools/stringTools'
+import { Const } from 'argparse'
+import { findBestMatch } from 'string-similarity'
 
 export class SettingsHandler extends ParentHandler {
 
@@ -25,14 +27,29 @@ export class SettingsListHandler extends SubHandler {
     description = 'List settings.'
 
     async execute(
-        { page, pageLength, searchTerm }: { page: number, pageLength: number, searchTerm: string },
+        { page, pageLength, searchTerm }: { page: number, pageLength: number, searchTerm: string[] },
         body: string, message: Message, context: HandlerContext
     ): Promise<string> {
         if (!message.guild) {
             throw new Error('No guild')
         }
+        page--
         const settings = await GuildSettingsModel.findOneOrCreate(message.guild)
-        const keysOnPage = [...settings.settings.keys()].slice(page * pageLength, (page + 1) * pageLength)
+        let keysOnPage: string[] | { key: string, similarity?: number }[] = [...settings.settings.keys()]
+        const allLength = keysOnPage.length
+
+        // Sort keys by similarity with searchTerm
+        if (searchTerm.length) {
+            const result = findBestMatch(searchTerm.join(' '), keysOnPage)
+            keysOnPage = result.ratings
+                .map(r => ({ key: r.target, similarity: r.rating }))
+                .sort((a, b) => b.similarity - a.similarity)
+                .slice(page * pageLength, (page + 1) * pageLength)
+        } else {
+            keysOnPage = keysOnPage
+                .slice(page * pageLength, (page + 1) * pageLength)
+                .map(key => ({ key }))
+        }
         if (!keysOnPage.length) {
             if (!page) {
                 return reply(message.author, '> No settings for this Guild!')
@@ -42,13 +59,18 @@ export class SettingsListHandler extends SubHandler {
         }
         return reply(
             message.author,
-            `\`\`\`${keysOnPage.map(key =>
-                nameDescription(key, `[${[...settings.settings.get(key)?.values() || []]
+            `> Page \`${page + 1
+            }/${Math.ceil(allLength / pageLength)
+            }\`, Results \`${page * pageLength + 1
+            }-${page * pageLength + keysOnPage.length
+            }/${allLength}\`\n\`\`\`${keysOnPage.map(key =>
+                nameDescription(key.key, `[${[...settings.settings.get(key.key)?.values() || []]
                     .map(e => (typeof e === 'string') ? `"${e}"` : `${e}`)
                     .join(', ')}]`, {
                     tab: 32,
                     delim: ':',
                     maxLength: 96,
+                    prefix: key.similarity !== undefined ? padStart(2, '0')`${Math.round(key.similarity * 100)}% ` : undefined
                 })
             ).join('\n')
             }\`\`\``
@@ -57,8 +79,8 @@ export class SettingsListHandler extends SubHandler {
 
     defineArguments(_parser: ThrowingArgumentParser) {
         _parser.addArgument(['-p', '--page'], {
-            defaultValue: 0,
-            type: NumberRange(0),
+            defaultValue: 1,
+            type: NumberRange(1),
             help: 'What page of settings to show.'
         })
         _parser.addArgument(['-l', '--length'], {
@@ -66,6 +88,10 @@ export class SettingsListHandler extends SubHandler {
             type: NumberRange(1, 64),
             dest: 'pageLength',
             help: 'How many settings per page to show.'
+        })
+        _parser.addArgument('searchTerm', {
+            nargs: Const.REMAINDER,
+            help: 'Search for key names'
         })
     }
 }
