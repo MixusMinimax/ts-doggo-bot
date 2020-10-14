@@ -16,8 +16,10 @@ export class SettingsHandler extends ParentHandler {
     constructor(prog: string) {
         super(prog)
         this.subHandlers = {
-            list: new SettingsListHandler(prog, 'list'),
-            update: new SettingsUpdateHandler(prog, 'update')
+            list: new SettingsListHandler(prog, 'list')
+        }
+        for (const operation of Object.values(SettingsUpdateOperation)) {
+            this.subHandlers[operation] = new SettingsUpdateOperationHandler(this.prog, operation)
         }
     }
 }
@@ -35,7 +37,7 @@ class SettingsListHandler extends SubHandler {
         }
         page--
         const settings = await GuildSettingsModel.findOneOrCreate(message.guild)
-        let keysOnPage: string[] | { key: string, similarity?: number }[] = [...settings.settings.keys()]
+        let keysOnPage: string[] | { key: string, similarity?: number }[] = settings.getNames()
         const allLength = keysOnPage.length
 
         // Sort keys by similarity with searchTerm
@@ -64,7 +66,7 @@ class SettingsListHandler extends SubHandler {
             }\`, Results \`${page * pageLength + 1
             }-${page * pageLength + keysOnPage.length
             }/${allLength}\`\n\`\`\`${keysOnPage.map(key => {
-                const val = [...settings.settings.get(key.key)?.values() || []]
+                const val = settings.getOption(key.key)
                     .map(e => (typeof e === 'string') ? `"${e}"` : `${e}`)
                 const valstr = val.length > 1 ?
                     `[${val.join(', ')}]` :
@@ -97,20 +99,6 @@ class SettingsListHandler extends SubHandler {
             nargs: Const.REMAINDER,
             help: 'Search for key names'
         })
-    }
-}
-
-class SettingsUpdateHandler extends IntermediateHandler {
-
-    description = 'Update a setting.'
-    subHandlers: Indexable<SubHandler>
-
-    constructor(parent: string, sub: string) {
-        super(parent, sub)
-        this.subHandlers = {}
-        for (const operation of Object.values(SettingsUpdateOperation)) {
-            this.subHandlers[operation] = new SettingsUpdateOperationHandler(this.prog, operation)
-        }
     }
 }
 
@@ -153,10 +141,8 @@ class SettingsUpdateOperationHandler extends SubHandler {
             throw new Error('No guild')
         }
         const settings = await GuildSettingsModel.findOneOrCreate(message.guild)
-
         if (this.operation === SettingsUpdateOperation.UNSET) {
-            settings.settings.delete(key)
-            await settings.save()
+            await settings.deleteOption(key)
             return reply(message.author, `> Removed key \`${key}\``)
         }
         // Parse values

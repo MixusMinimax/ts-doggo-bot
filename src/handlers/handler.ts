@@ -36,18 +36,27 @@ export async function handle(tokens: string[], body: string, message: Message): 
 
     const cmd: string | undefined = tokens.shift()
 
+    const debug = true
+
     if (cmd) {
         const handler: Handler = handlers[cmd]
         if (handler) {
             try {
-                const args = handler.parser.parseKnownArgs(tokens)
+                try {
+                    const args = handler.parser.parseKnownArgs(tokens)
 
-                dlog('HANDLER..args', `${args}`)
+                    dlog('HANDLER..args', `${args}`)
 
-                return (await handler.execute(args[0], body, message, {
-                    handlers,
-                    handle
-                })) || undefined
+                    return (await handler.execute(args[0], body, message, {
+                        handlers,
+                        handle
+                    })) || undefined
+                } catch (error) {
+                    if (debug) {
+                        console.error(error)
+                    }
+                    throw error
+                }
             } catch (error) {
                 if (error instanceof PermissionLevelException) {
                     return `> ${error.message}`

@@ -138,9 +138,12 @@ export function reply(user: User, message: string, args: { delim?: string } = {}
 export function parseList<T>(parseElement: (element: string) => T, s: string): T[] {
     let x: string = s
     x = x.match(/\(([^()]+)\)/)?.[1] || x
-    x = x.match(/\[([^()]+)\]/)?.[1] || x
+    x = x.match(/\[([^\[\]]+)\]/)?.[1] || x
     x = x.trim().replace(/^,*|,*$/, '')
-    const tokens = x.split(/ *, *| +/).map(e => e.trim()).filter(e => e)
+    const tokens = x
+        .split(/ *(?<!\\), *|(?<!\\) +/).map(e => e.trim())
+        .filter(e => e !== undefined)
+        .map(e => e.replace(/\\ /g, ' ').replace(/\\,/g, ','))
     return tokens.map(parseElement)
 }
 
