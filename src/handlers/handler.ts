@@ -30,6 +30,8 @@ export const handlers: Indexable<Handler> = {
 
 export async function handle(tokens: string[], body: string, message: Message): Promise<string | undefined> {
 
+    dlog('HANDLER', `executing: "${config.prefix}${tokens.join(' ')}"`)
+
     const cmd: string | undefined = tokens.shift()
 
     if (cmd) {
@@ -49,7 +51,7 @@ export async function handle(tokens: string[], body: string, message: Message): 
                     return `> ${error.message}`
                 } else if (error instanceof PrintHelpError) {
                     return reply(message.author,
-                        `> Help for the command \`${config.prefix}${cmd}\`:\n`
+                        `> Help for the command \`${error.prog}\`:\n`
                         + '```\n' + error.message + '\n```'
                     )
                 } else if (error instanceof ClearTextError) {
@@ -77,8 +79,6 @@ export async function handleMessage(message: Message): Promise<string | void> {
     const parsed = parseMessage(message)
 
     if (!parsed.isCommand) return
-
-    dlog('HANDLER', `executing: "${config.prefix}${parsed.tokens.join(' ')}"`)
 
     return await handle(parsed.tokens, parsed.body, message)
 }

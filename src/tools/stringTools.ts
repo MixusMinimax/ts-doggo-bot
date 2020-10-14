@@ -82,7 +82,7 @@ export function nameDescription(name: string, description: string, {
     repeat?: string,
     delim?: string,
     minSpace?: number
-}): string {
+} = {}): string {
 
     if (prefix.length + delim.length + minSpace > tab) {
         throw new Error('tab too small')

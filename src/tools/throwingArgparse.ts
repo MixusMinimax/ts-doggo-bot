@@ -4,15 +4,24 @@ import { padStart } from './stringTools'
 
 export class ArgumentParseError extends Error { }
 
-export class PrintHelpError extends Error { }
+export class PrintHelpError extends Error {
+    prog: string | undefined
+
+    constructor(prog: string | undefined, message: string) {
+        super(message)
+        this.prog = prog
+    }
+}
 
 export default class ThrowingArgumentParser extends ArgumentParser {
 
     description?: string
+    prog?: string
 
     constructor(args: ArgumentParserOptions = {}) {
         dlog('ARGPARSE', args)
         super(args)
+        this.prog = args.prog
         this.description = args.description
     }
 
@@ -25,7 +34,7 @@ export default class ThrowingArgumentParser extends ArgumentParser {
     }
 
     printHelp() {
-        throw new PrintHelpError(this.formatHelp())
+        throw new PrintHelpError(this.prog, this.formatHelp())
     }
 }
 

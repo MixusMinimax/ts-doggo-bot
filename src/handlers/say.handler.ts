@@ -5,17 +5,11 @@ import { Handler, HandlerContext } from './handler.type'
 
 export class SayHandler extends Handler {
 
+    description = 'Say a message'
+
     async execute(_args: any, _body: string, message: Message, _options: HandlerContext): Promise<void> {
         const sayMessage = message.content.slice(this.prog.length).trim()
         message.delete().catch(() => { })
         message.channel.send(sayMessage)
-    }
-
-    get parser() {
-        const _parser = new ThrowingArgumentParser({
-            prog: this.prog,
-            description: 'Say a message'
-        })
-        return _parser
     }
 }

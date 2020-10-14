@@ -1,34 +1,30 @@
 import { Const } from 'argparse'
 import { Message } from 'discord.js'
-import config from '../../config/config.json'
 import { LinkLists } from '../database/models/links'
 import { dlog } from '../tools/log'
 import { parseList, reply, singularPlural } from '../tools/stringTools'
 import ThrowingArgumentParser from '../tools/throwingArgparse'
+import { Indexable } from '../tools/types'
 import { HandlerContext, ParentHandler, SubHandler } from './handler.type'
 
 export class LinksHandler extends ParentHandler {
 
+    description = 'Manage Links for the current Channel!'
+    defaultSubCommand = 'list'
+
     constructor(prog: string) {
-        super(prog, {
+        super(prog)
+        this.subHandlers = {
             list: new LinksListHandler(prog, 'list'),
             add: new LinksAddHandler(prog, 'add'),
             remove: new LinksRemoveHandler(prog, 'remove')
-        }, {
-            defaultSubCommand: 'list',
-            description: 'Manage Links for the current Channel!',
-            usage: [
-                config.prefix + 'links <command> [<args>]',
-                '',
-                '  list      List links of current channel.',
-                '  add       Add links to current channel.',
-                '  remove    Remove links from current channel.'
-            ].join('\n')
-        })
+        }
     }
 }
 
 class LinksListHandler extends SubHandler {
+
+    description = 'List all Links for the current Channel.'
 
     async execute(_args: any, _body: string, message: Message, _options: HandlerContext = {}): Promise<string> {
         if (!message.guild) {
@@ -45,18 +41,11 @@ class LinksListHandler extends SubHandler {
             ].join('\n'))
         }
     }
-
-    get parser() {
-        const _parser = new ThrowingArgumentParser({
-            prog: this.prog,
-            description: 'List all Links for the current Channel!'
-        })
-
-        return _parser
-    }
 }
 
 class LinksAddHandler extends SubHandler {
+
+    description = 'Add Links to the current Channel.'
 
     async execute(args: any, body: string, message: Message, _options: HandlerContext = {}): Promise<string> {
 
@@ -77,22 +66,18 @@ class LinksAddHandler extends SubHandler {
         }
     }
 
-    get parser() {
-        const _parser = new ThrowingArgumentParser({
-            prog: this.prog,
-            description: 'Add Links to the current Channel!'
-        })
+    defineArguments(_parser: ThrowingArgumentParser) {
         _parser.addArgument('index', {
             nargs: Const.OPTIONAL,
             defaultValue: -1,
             type: 'int'
         })
-
-        return _parser
     }
 }
 
 class LinksRemoveHandler extends SubHandler {
+
+    description = 'Remove Links from the current Channel.'
 
     async execute(args: any, body: string, message: Message, _options: HandlerContext = {}): Promise<string> {
 
@@ -115,16 +100,10 @@ class LinksRemoveHandler extends SubHandler {
         }
     }
 
-    get parser() {
-        const _parser = new ThrowingArgumentParser({
-            prog: this.prog,
-            description: 'Remove Links from the current Channel!'
-        })
+    defineArguments(_parser: ThrowingArgumentParser) {
         _parser.addArgument('indices', {
             nargs: Const.REMAINDER,
             defaultValue: [],
         })
-
-        return _parser
     }
 }

@@ -1,12 +1,12 @@
 import { Const } from 'argparse'
-import { GuildMember, Message, User } from 'discord.js'
+import { Message } from 'discord.js'
 import { tryFindMember } from '../tools/discord.utils'
-import { dlog } from '../tools/log'
 import ThrowingArgumentParser from '../tools/throwingArgparse'
-import { ClearTextError } from '../tools/types'
 import { Handler, HandlerContext } from './handler.type'
 
 export class PermissionHandler extends Handler {
+
+    description = 'Handle User Permission Level'
 
     async execute(
         { reset, user: _user, level: _level }: { reset: boolean, user: string | null, level: string | null, },
@@ -27,11 +27,7 @@ export class PermissionHandler extends Handler {
         return user.user.toString()
     }
 
-    get parser() {
-        const _parser = new ThrowingArgumentParser({
-            prog: this.prog,
-            description: 'Handle User Permission Level'
-        })
+    defineArguments(_parser: ThrowingArgumentParser) {
         _parser.addArgument(['-r', '--reset'], {
             action: 'storeTrue',
             help: 'Remove Permission Override.'
@@ -46,7 +42,5 @@ export class PermissionHandler extends Handler {
             type: String,
             help: 'Override the User\'s Permission Level. (0-10)'
         })
-
-        return _parser
     }
 }

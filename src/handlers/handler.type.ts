@@ -1,6 +1,7 @@
 import argparse from 'argparse'
 import { Message } from 'discord.js'
 import config from '../../config/config.json'
+import { EOnLongName, nameDescription } from '../tools/stringTools'
 import ThrowingArgumentParser from '../tools/throwingArgparse'
 import { Indexable } from '../tools/types'
 
@@ -16,6 +17,7 @@ export interface HandlerContext {
 export abstract class Handler {
 
     prog: string
+    abstract description: string
 
     constructor(prog: string) {
         this.prog = config.prefix + prog
@@ -23,7 +25,16 @@ export abstract class Handler {
 
     abstract execute(args: any, body: string, message: Message, options?: HandlerContext): Promise<void | string>
 
-    abstract parser: ThrowingArgumentParser
+    defineArguments(_parser: ThrowingArgumentParser): void {}
+
+    get parser() {
+        const _parser = new ThrowingArgumentParser({
+            prog: this.prog,
+            description: this.description,
+        })
+        this.defineArguments(_parser)
+        return _parser
+    }
 
     formatHelp(args?: any): string {
         return this.parser.formatHelp()
@@ -31,7 +42,6 @@ export abstract class Handler {
 }
 
 export abstract class SubHandler extends Handler {
-
     constructor(parent: string, sub: string) {
         super(parent + ' ' + sub)
     }
@@ -39,21 +49,8 @@ export abstract class SubHandler extends Handler {
 
 export abstract class ParentHandler extends Handler {
 
-    subHandlers: Indexable<SubHandler>
-    description?: string
-    usage?: string
+    subHandlers: Indexable<SubHandler> = {}
     defaultSubCommand?: string
-
-    constructor(
-        prog: string, subHandlers: Indexable<SubHandler> = {},
-        args: { description?: string, usage?: string, defaultSubCommand?: string } = {}
-    ) {
-        super(prog)
-        this.subHandlers = subHandlers
-        this.description = args.description
-        this.usage = args.usage
-        this.defaultSubCommand = args.defaultSubCommand
-    }
 
     async execute(args: any, body: string, message: Message, _options: HandlerContext = {}): Promise<void | string> {
         if (!this.defaultSubCommand) {
@@ -65,14 +62,7 @@ export abstract class ParentHandler extends Handler {
 
         if (handler) {
             const parsedArgs = handler.parser.parseKnownArgs(tokens)
-
-            if (parsedArgs[0].help) {
-                return `<@${message.author.id}>\n`
-                    + `> Help for the command \`${this.prog} ${command}\`:\n`
-                    + '```\n' + handler.formatHelp(parsedArgs[0]) + '\n```'
-            } else {
-                return (await handler.execute(parsedArgs[0], body, message)) || undefined
-            }
+            return (await handler.execute(parsedArgs[0], body, message)) || undefined
         } else {
             return `> Command not found: \`${this.prog} ${command}\``
         }
@@ -82,7 +72,15 @@ export abstract class ParentHandler extends Handler {
         const _parser = new ThrowingArgumentParser({
             prog: this.prog,
             description: this.description,
-            usage: this.usage
+            usage: [
+                `${this.prog} <command> [<args>]`,
+                '',
+                ...Object.entries(this.subHandlers).map(([name, { description }]) => {
+                    return nameDescription(name, description, {
+                        tab: 10,
+                    })
+                })
+            ].join('\n')
         })
         _parser.addArgument('command', {
             help: 'Subcommand to run',
@@ -104,5 +102,11 @@ export abstract class ParentHandler extends Handler {
         } else {
             return super.formatHelp()
         }
+    }
+}
+
+export abstract class IntermediateHandler extends ParentHandler implements SubHandler {
+    constructor(parent: string, sub: string) {
+        super(parent + ' ' + sub)
     }
 }

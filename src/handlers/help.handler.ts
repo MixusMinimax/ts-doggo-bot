@@ -9,21 +9,27 @@ import { Handler, HandlerContext } from './handler.type'
 export class HelpHandler extends Handler {
 
     tab: number = 16
+    description = 'Print help'
 
-    async execute(args: any, body: string, message: Message, options: HandlerContext): Promise<string> {
-
+    async execute(args: { command: string[] }, body: string, message: Message, options: HandlerContext): Promise<string> {
+        
         if (!options.handlers) {
             throw new Error('Handlers not initialized')
         }
 
-        let command: string | undefined = args.command?.shift()
-        if (command?.startsWith(config.prefix)) {
-            command = command?.substring(config.prefix.length)?.replace(/^\s*/, '')
+        const command: string[] = []
+        for (const token of args.command) {
+            if (token.startsWith('-')) break
+            command.push(token)
         }
 
-        if (command) {
-            dlog('HANDLER.help', 'command: ' + command)
-            const result = options.handle ? await options.handle([command, '-h'].concat(args.command || []), body, message) : null
+        if (command.length && command[0].startsWith(config.prefix)) {
+            command[0] = command[0].substring(config.prefix.length)?.replace(/^\s*/, '')
+        }
+
+        if (command.length) {
+            dlog('HANDLER.help', 'command: ' + command.join(' '))
+            const result = options.handle ? await options.handle([...command, '-h'], body, message) : null
             if (result) {
                 return result
             } else {
@@ -45,16 +51,10 @@ export class HelpHandler extends Handler {
         }
     }
 
-    get parser() {
-        const _parser = new ThrowingArgumentParser({
-            prog: this.prog,
-            description: 'Print help'
-        })
+    defineArguments(_parser: ThrowingArgumentParser) {
         _parser.addArgument('command', {
             help: 'The command you need help on!',
             nargs: argparse.Const.REMAINDER
         })
-
-        return _parser
     }
 }

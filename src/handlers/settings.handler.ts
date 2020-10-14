@@ -1,26 +1,26 @@
-import { HandlerContext, ParentHandler, SubHandler } from './handler.type'
+import { HandlerContext, IntermediateHandler, ParentHandler, SubHandler } from './handler.type'
 import config from '../../config/config.json'
 import { Message } from 'discord.js'
 import ThrowingArgumentParser from '../tools/throwingArgparse'
+import { Indexable } from '../tools/types'
 
 export class SettingsHandler extends ParentHandler {
+
+    description = 'Manage Settings for this Guild.'
+    defaultSubCommand = 'list'
+
     constructor(prog: string) {
-        super(prog, {
+        super(prog)
+        this.subHandlers = {
             update: new SettingsUpdateHandler(prog, 'update')
-        }, {
-            defaultSubCommand: 'list',
-            description: 'Manage Settings for this Guild!',
-            usage: [
-                config.prefix + 'settings <command> [<args>]',
-                '',
-                '  list      List settings.',
-                '  update    Update a setting.',
-            ].join('\n')
-        })
+        }
     }
 }
 
 export class SettingsListHandler extends SubHandler {
+
+    description = 'List settings.'
+
     async execute(
         args: { page: number, pageLength: number, searchTerm: string },
         body: string, message: Message, context: HandlerContext
@@ -41,9 +41,16 @@ export class SettingsListHandler extends SubHandler {
     }
 }
 
-export class SettingsUpdateHandler extends ParentHandler implements SubHandler {
-    constructor(prog: string, sub: string) {
-        super(prog)
+export class SettingsUpdateHandler extends IntermediateHandler {
+
+    description = 'Update a setting.'
+    subHandlers: Indexable<SubHandler>
+
+    constructor(parent: string, sub: string) {
+        super(parent, sub)
+        this.subHandlers = {
+
+        }
     }
 }
 

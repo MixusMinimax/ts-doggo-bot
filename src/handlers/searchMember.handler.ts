@@ -6,6 +6,8 @@ import { Handler, HandlerContext } from './handler.type'
 
 export class SearchMemberHandler extends Handler {
 
+    description = 'Search for Guild Members'
+
     async execute(
         {
             user: user, limit, minCertainty, mentions
@@ -31,11 +33,7 @@ export class SearchMemberHandler extends Handler {
         }
     }
 
-    get parser() {
-        const _parser = new ThrowingArgumentParser({
-            prog: this.prog,
-            description: 'Search for Guild Members'
-        })
+    defineArguments(_parser: ThrowingArgumentParser) {
         _parser.addArgument(['-l', '--limit'], {
             defaultValue: 10,
             type: NumberRange(1, 50),
