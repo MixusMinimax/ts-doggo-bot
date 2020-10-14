@@ -1,6 +1,6 @@
 import { ArgumentParser, ArgumentParserOptions } from 'argparse'
 import { dlog } from './log'
-import { padStart } from './stringTools'
+import { padStart } from './string.utils'
 
 export class ArgumentParseError extends Error { }
 

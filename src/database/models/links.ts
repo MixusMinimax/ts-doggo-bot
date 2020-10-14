@@ -1,7 +1,7 @@
 import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose'
 import { alterArray } from '../../tools/array.utils'
 import { dlog } from '../../tools/log'
-import { onlyUnique } from '../../tools/stringTools'
+import { onlyUnique } from '../../tools/string.utils'
 
 export interface ILinksUpdateResult {
     links: LinkList,

@@ -54,7 +54,8 @@ export class GuildSettings implements Indexable<any> {
 
     async deleteOption(this: DocumentType<GuildSettings>, key: string) {
         key = dotToMongo(key)
-        return await this.update({ $unset: `settings.${key}` })
+        dlog('MONGO.models.settings', `Unsetting ${key} for guild ${this.guild}`)
+        return await this.updateOne({ $unset: { [`settings.${key}`]: 1 } })
     }
 
     async setOption(

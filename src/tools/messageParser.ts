@@ -1,6 +1,6 @@
 import { Message } from 'discord.js'
 import config from '../../config/config.json'
-import { tokenize } from './stringTools'
+import { tokenize } from './string.utils'
 
 
 interface ParseReturnType {

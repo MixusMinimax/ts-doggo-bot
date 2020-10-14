@@ -1,7 +1,7 @@
 import argparse from 'argparse'
 import { Message } from 'discord.js'
 import config from '../../config/config.json'
-import { nameDescription } from '../tools/stringTools'
+import { nameDescription } from '../tools/string.utils'
 import ThrowingArgumentParser from '../tools/throwingArgparse'
 import { Indexable } from '../tools/types'
 

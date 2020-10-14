@@ -2,7 +2,7 @@ import { Const } from 'argparse'
 import { Message } from 'discord.js'
 import { LinkLists } from '../database/models/links'
 import { dlog } from '../tools/log'
-import { reply, singularPlural } from '../tools/stringTools'
+import { reply, singularPlural } from '../tools/string.utils'
 import ThrowingArgumentParser, { NumberRange } from '../tools/throwingArgparse'
 import { HandlerContext, ParentHandler, SubHandler } from './handler.type'
 

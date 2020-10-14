@@ -1,9 +1,45 @@
 import { User } from 'discord.js'
 
 export function tokenize(s: string | undefined): string[] {
-    return (
-        s?.match(/("(\\"|[^"])*?"|(\\\s|\\,|[^ ,])+)(?=\s|,|$)/g) || []
-    ).map(e => e.trim().replace(/^"(.*)"$/, '$1'))
+    return s?.match(/("(\\"|[^"])*?"|(\\\s|\\,|[^ ,])+)(?=\s|,|$)/g)
+        ?.map(e => e.trim().match(/^".*"$/) ? unescape(e) : e)
+        ?.map(e => e.replace(/^\\"(.*)\\"$/, '"$1"')) || []
+}
+
+export function escapeQuotes(s: string): string {
+    return s.replace(/(\\|")/g, '\\$1')
+}
+
+export function unescape(s: string): string {
+    s = s.replace(/^"|"$/g, '')
+    let result: string = ''
+    let slash: boolean = false
+    for (const c of s.split('')) {
+        if (!slash && c === '\\') {
+            slash = true
+        } else if (!slash) {
+            result += c
+        } else {
+            switch (c) {
+                case 'n':
+                    result += '\n'
+                    break
+                case '"':
+                    result += '"'
+                    break
+                default:
+                    result += c
+            }
+            slash = false
+        }
+    }
+    return result
+}
+
+export function arrayToString<T>(a: T[]): string {
+    return `[${a
+        .map(e => (typeof e === 'string') ? `"${escapeQuotes(e)}"` : `${e}`)
+        .join(', ')}]`
 }
 
 export function wordWrap(s: string, {

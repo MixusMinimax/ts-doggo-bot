@@ -1,4 +1,4 @@
-import { onlyUnique } from "./stringTools"
+import { onlyUnique } from "./string.utils"
 
 export type ArrayUpdate<T> = ArrayInsert<T> | ArrayRemove
 
@@ -70,10 +70,4 @@ function removeAt<T>(initial: T[], indices: number[]): ArrayUpdateResult<T> {
         array: initial.filter((_line: T, index: number) => !indices.includes(index)),
         removedIndices: indices
     }
-}
-
-export function arrayToString<T>(a: T[]): string {
-    return `[${a
-        .map(e => (typeof e === 'string') ? `"${e}"` : `${e}`)
-        .join(', ')}]`
 }
