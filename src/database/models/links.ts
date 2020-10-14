@@ -30,7 +30,7 @@ export class LinkList {
         this.lines = updateResult.array
         return {
             links: await this.save(),
-            addedLines: lines
+            addedLines: updateResult.addedLines
         }
     }
 
@@ -40,7 +40,7 @@ export class LinkList {
         this.lines = updateResult.array
         return {
             links: await this.save(),
-            removedIndices: indices
+            removedIndices: updateResult.removedIndices
         }
     }
 

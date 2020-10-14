@@ -1,4 +1,4 @@
-import argparse from 'argparse'
+import argparse, { Const } from 'argparse'
 import { Message } from 'discord.js'
 import config from '../../config/config.json'
 import { dlog } from '../tools/log'
@@ -11,25 +11,20 @@ export class HelpHandler extends Handler {
     tab: number = 16
     description = 'Print help'
 
-    async execute(args: { command: string[] }, body: string, message: Message, options: HandlerContext): Promise<string> {
-        
+    async execute(args: { command: string }, body: string, message: Message, options: HandlerContext): Promise<string> {
+
         if (!options.handlers) {
             throw new Error('Handlers not initialized')
         }
 
-        const command: string[] = []
-        for (const token of args.command) {
-            if (token.startsWith('-')) break
-            command.push(token)
+
+        if (args.command.startsWith(config.prefix)) {
+            args.command = args.command.substring(config.prefix.length)?.replace(/^\s*/, '')
         }
 
-        if (command.length && command[0].startsWith(config.prefix)) {
-            command[0] = command[0].substring(config.prefix.length)?.replace(/^\s*/, '')
-        }
-
-        if (command.length) {
-            dlog('HANDLER.help', 'command: ' + command.join(' '))
-            const result = options.handle ? await options.handle([...command, '-h'], body, message) : null
+        if (args.command.length) {
+            dlog('HANDLER.help', 'command: ' + args.command)
+            const result = options.handle ? await options.handle([args.command, '-h'], body, message) : null
             if (result) {
                 return result
             } else {
@@ -54,7 +49,7 @@ export class HelpHandler extends Handler {
     defineArguments(_parser: ThrowingArgumentParser) {
         _parser.addArgument('command', {
             help: 'The command you need help on!',
-            nargs: argparse.Const.REMAINDER
+            nargs: Const.OPTIONAL
         })
     }
 }
