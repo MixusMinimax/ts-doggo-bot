@@ -1,10 +1,10 @@
 import { DocumentType, getModelForClass, modelOptions, prop } from "@typegoose/typegoose"
+import { mapOptions } from "@typegoose/typegoose/lib/internal/utils"
 import { Guild } from "discord.js"
 import { dlog } from "../../tools/log"
 import { Indexable, KeyError, ValueError } from "../../tools/types"
 
 type PropertyType = string | number
-type PropertyTypeOrArr = PropertyType | PropertyType[]
 
 @modelOptions({
     schemaOptions: {
@@ -17,8 +17,8 @@ export class GuildSettings implements Indexable<any> {
     @prop({ required: true, unique: true })
     guild!: string
 
-    @prop({ type: String, default: [] })
-    moderatorRoles!: string[]
+    @prop({ default: {} })
+    settings!: Map<string, PropertyType[]>
 
     static async findOneOrCreate(guild: string | Guild): Promise<DocumentType<GuildSettings>> {
         if (typeof (guild) !== 'string') {
@@ -35,44 +35,25 @@ export class GuildSettings implements Indexable<any> {
         })()
     }
 
-    getOption(this: DocumentType<GuildSettings>, key: string): PropertyTypeOrArr {
-        console.log(Object.getOwnPropertyNames(this))
-        if (key === 'guild' || !Object.getOwnPropertyNames(this).includes(key)) {
-            throw new KeyError(key)
-        }
-        const ret: PropertyTypeOrArr = (this as any)[key]
-        if (ret === undefined) {
-            throw new KeyError(key)
-        }
-        return ret
+    getOption(this: DocumentType<GuildSettings>, key: string): PropertyType[] {
+        return this.settings.get(key) || []
     }
 
     async setOption(
-        this: DocumentType<GuildSettings>, key: string, value?: PropertyTypeOrArr,
+        this: DocumentType<GuildSettings>, key: string, value?: PropertyType | PropertyType[],
         { insertAt, removeIndices = [] }: { insertAt?: number, removeIndices?: number[] } = {}
     ): Promise<void | never> {
-        if (key === 'guild' || !Object.getOwnPropertyNames(this).includes(key)) {
-            throw new KeyError(key)
-        }
-        const thisArr = Array.isArray((this as any)[key])
-        const paraArr = Array.isArray(value)
-        if (!thisArr && paraArr) {
-            throw new ValueError(value, `Can't be an array`)
-        }
-        if (thisArr && !paraArr) {
+        if (!Array.isArray(value)) {
             value = [value as PropertyType]
-        }
-        if (!thisArr) {
-            dlog('MONGO.settings', `Setting ${key} to ${value} for guild ${this.guild}`)
-            // TODO
-            return
         }
         if (removeIndices.length) {
             dlog('MONGO.settings', `Removing indices ${removeIndices} for ${key} for guild ${this.guild}`)
+            // TODO
         }
         if (insertAt === undefined) {
             insertAt = ((this as any)[key] as PropertyType[]).length
             dlog('MONGO.settings', `Setting insertAt to ${insertAt}`)
+            // TODO
         }
         dlog('MONGO.settings', `Inserting ${value} to ${key} at index ${insertAt} for guild ${this.guild}`)
         // TODO

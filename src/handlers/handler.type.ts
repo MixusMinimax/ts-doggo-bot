@@ -42,9 +42,12 @@ export abstract class ParentHandler extends Handler {
     subHandlers: Indexable<SubHandler>
     description?: string
     usage?: string
-    defaultSubCommand: string
+    defaultSubCommand?: string
 
-    constructor(prog: string, subHandlers: Indexable<SubHandler>, args: { description?: string, usage?: string, defaultSubCommand: string }) {
+    constructor(
+        prog: string, subHandlers: Indexable<SubHandler> = {},
+        args: { description?: string, usage?: string, defaultSubCommand?: string } = {}
+    ) {
         super(prog)
         this.subHandlers = subHandlers
         this.description = args.description
@@ -53,6 +56,9 @@ export abstract class ParentHandler extends Handler {
     }
 
     async execute(args: any, body: string, message: Message, _options: HandlerContext = {}): Promise<void | string> {
+        if (!this.defaultSubCommand) {
+            return `> No subcommand specified!`
+        }
         const tokens: string[] = (args.command && args.command.length > 0 && args.command) || []
         const command: string = tokens?.shift() || this.defaultSubCommand
         const handler = this.subHandlers[command]
