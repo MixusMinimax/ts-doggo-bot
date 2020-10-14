@@ -46,3 +46,5 @@ export class SettingsUpdateHandler extends ParentHandler implements SubHandler {
         super(prog)
     }
 }
+
+// TODO: update set, update insert, update prepend, update append, update remove, update unset
