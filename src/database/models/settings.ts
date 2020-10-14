@@ -1,10 +1,10 @@
 import { DocumentType, getModelForClass, modelOptions, prop } from "@typegoose/typegoose"
 import { mapOptions } from "@typegoose/typegoose/lib/internal/utils"
 import { Guild } from "discord.js"
+import { alterArray, ArrayUpdateResult } from "../../tools/array.utils"
 import { dlog } from "../../tools/log"
+import { arrayToString } from "../../tools/string.utils"
 import { Indexable, KeyError, ValueError } from "../../tools/types"
-
-type PropertyType = string | number
 
 function dotToMongo(s: string): string {
     return s.replace(/\./g, ':')
@@ -26,7 +26,7 @@ export class GuildSettings implements Indexable<any> {
     guild!: string
 
     @prop({ default: {} })
-    private settings!: Indexable<PropertyType[]>
+    private settings!: Indexable<string[]>
 
     static async findOneOrCreate(guild: string | Guild): Promise<DocumentType<GuildSettings>> {
         if (typeof (guild) !== 'string') {
@@ -47,7 +47,7 @@ export class GuildSettings implements Indexable<any> {
         return Object.keys(this.settings).map(mongoToDot)
     }
 
-    getOption(this: DocumentType<GuildSettings>, key: string): PropertyType[] {
+    getOption(this: DocumentType<GuildSettings>, key: string): string[] {
         key = dotToMongo(key)
         return this.settings[key] || []
     }
@@ -58,31 +58,46 @@ export class GuildSettings implements Indexable<any> {
         return await this.updateOne({ $unset: { [`settings.${key}`]: 1 } })
     }
 
-    async setOption(
-        this: DocumentType<GuildSettings>, key: string, values?: PropertyType[],
+    async updateOption(
+        this: DocumentType<GuildSettings>, key: string, values?: string[],
         {
-            overwrite = false, insertAt = -1, removeValues = []
+            overwrite = false, insertAt = -1, remove: remove = false
         }: {
-            overwrite?: boolean, insertAt?: number, removeValues?: PropertyType[]
+            overwrite?: boolean, insertAt?: number, remove?: boolean
         } = {}
-    ): Promise<void | never> {
+    ): Promise<ArrayUpdateResult<string> | never> {
         key = dotToMongo(key)
         if (overwrite) {
             dlog('MONGO.models.settings', `Overwriting ${key} with [${values}] for guild ${this.guild}`)
             if (values === undefined) {
                 throw new Error('No value supplied!')
             }
-            return await this.updateOne({ $set: { [`settings.${key}`]: values } })
+            await this.updateOne({ $set: { [`settings.${key}`]: values } })
+            return {
+                array: values,
+                addedLines: values
+            }
         }
-        else if (removeValues.length) {
-            dlog('MONGO.models.settings', `Removing values [${removeValues}] for ${key} for guild ${this.guild}`)
-            // TODO
+        else if (values?.length && remove) {
+            dlog('MONGO.models.settings', `Removing values ${arrayToString(values)} for ${key} for guild ${this.guild}`)
+            const arr: string[] | undefined = this.settings[key]
+            if (!arr) return { array: arr }
+            const result = alterArray(arr, { remove: values.map(e => arr.indexOf(e)) })
+            await this.updateOne({ $set: { [`settings.${key}`]: result.array } })
+            return result
         }
-        else {
+        else if (values?.length) {
             dlog('MONGO.models.settings', `Inserting ${values} to ${key} at index ${insertAt} for guild ${this.guild}`)
-            // TODO
+            const arr: string[] | undefined = this.settings[key]
+            if (!arr) {
+                return await this.updateOne({ $set: { [`settings.${key}`]: values } })
+            }
+            values = values.filter(e => !arr.includes(e))
+            const result = alterArray(arr, { add: values, at: insertAt })
+            await this.updateOne({ $set: { [`settings.${key}`]: result.array } })
+            return result
         }
-        await this.save()
+        throw new Error('no values supplied')
     }
 }
 

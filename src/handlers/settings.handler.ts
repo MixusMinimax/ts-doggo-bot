@@ -142,7 +142,7 @@ class SettingsUpdateOperationHandler extends SubHandler {
         }
         // Set
         if (this.operation === SettingsUpdateOperation.SET) {
-            await settings.setOption(key, values, { overwrite: true })
+            await settings.updateOption(key, values, { overwrite: true })
             return reply(message.author, `> Set \`${key}\` to \`${arrayToString(values)}\``)
         }
 
@@ -158,15 +158,23 @@ class SettingsUpdateOperationHandler extends SubHandler {
             case SettingsUpdateOperation.INSERT:
             case SettingsUpdateOperation.PREPEND:
             case SettingsUpdateOperation.APPEND:
-                await settings.setOption(key, values, { insertAt: index })
-                return 'insert'
+                const result = await settings.updateOption(key, values, { insertAt: index })
+                const indexText = index! >= 0 ?
+                    `index \`${index}\`` :
+                    'the end'
+                switch (result.addedLines?.length) {
+                    case 0: return reply(message.author, `> No values inserted!`)
+                    case 1: return reply(message.author, `> Inserted one value to \`${key}\` at ${indexText}.`)
+                    default: return reply(message.author, `> Inserted \`${values.length}\` values to \`${key}\` at at ${indexText}.`)
+                }
         }
         // Remove
         if (this.operation === SettingsUpdateOperation.REMOVE) {
-            await settings.setOption(key, [], { removeValues: values })
-            return 'remove'
+            await settings.updateOption(key, values, { remove: true })
+            return reply(message.author, `> Removed the values \`${arrayToString(values)}\` from \`${key}\`!`)
         }
-        return 'Not implemented'
+
+        throw new Error('Theoretically unreachable code')
     }
 
     defineArguments(_parser: ThrowingArgumentParser) {
