@@ -1,4 +1,5 @@
 import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose'
+import { alterArray } from '../../tools/array.utils'
 import { dlog } from '../../tools/log'
 import { onlyUnique } from '../../tools/stringTools'
 
@@ -25,20 +26,8 @@ export class LinkList {
     lines!: string[]
 
     async insertLines(this: DocumentType<LinkList>, lines: string[], at: number = -1): Promise<ILinksUpdateResult> {
-        if (lines.length === 0) {
-            return {
-                links: this,
-                addedLines: []
-            }
-        }
-        if (at >= this.lines.length) at = -1
-        if (at < 0) {
-            this.lines = this.lines.concat(lines)
-        } else if (at === 0) {
-            this.lines = lines.concat(this.lines)
-        } else {
-            this.lines = this.lines.splice(0, at).concat(lines).concat(this.lines)
-        }
+        const updateResult = alterArray(this.lines, { add: lines, at })
+        this.lines = updateResult.array
         return {
             links: await this.save(),
             addedLines: lines
@@ -47,17 +36,8 @@ export class LinkList {
 
     async removeLines(this: DocumentType<LinkList>, indices: number[]): Promise<ILinksUpdateResult> {
         // Just as an accurate presentation of how many lines were removed
-        indices = indices
-            .filter(index => index >= 0 && index < this.lines.length)
-            .filter(onlyUnique)
-            .sort((a, b) => a - b)
-        if (indices.length === 0) {
-            return {
-                links: this,
-                removedIndices: indices
-            }
-        }
-        this.lines = this.lines.filter((_line: string, index: number) => !indices.includes(index))
+        const updateResult = alterArray(this.lines, { remove: indices })
+        this.lines = updateResult.array
         return {
             links: await this.save(),
             removedIndices: indices

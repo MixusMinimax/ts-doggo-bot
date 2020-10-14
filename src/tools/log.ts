@@ -15,7 +15,8 @@ const filter: IFilter = {
         token: true,
         models: {
             default: true,
-            links: true
+            links: true,
+            settings: true,
         }
     },
     HANDLER: {

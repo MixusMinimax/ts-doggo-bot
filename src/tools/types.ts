@@ -15,6 +15,16 @@ export function checkPermission(required: number, actual: number): void {
         throw new PermissionLevelException(required, actual)
 }
 
-export class ClearTextError extends Error {
-    
+export class ClearTextError extends Error { }
+
+export class KeyError extends Error {
+    constructor(key: string, message?: string) {
+        super(`Invalid key: "${key}"` + message ? `: ${message}` : '')
+    }
+}
+
+export class ValueError extends Error {
+    constructor(key: any, message?: string) {
+        super(`Invalid value: "${key}"` + message ? `: ${message}` : '')
+    }
 }
