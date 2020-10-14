@@ -16,7 +16,7 @@ export function wordWrap(s: string, {
     max?: number, indent?: number, startOffset?: number, maxLines?: number
 }): string {
 
-    const words = s.match(/\w+([^\w]+|[^\w]*$)/g) || []
+    const words = s.match(/(?:\s+|^)(\S+|\S*$)/g) || []
     let result = ''
     let offset = startOffset
     const newLine = '\n' + ' '.repeat(indent)
@@ -73,14 +73,23 @@ export function nameDescription(name: string, description: string, {
     delim = ':',
     minSpace = 2
 }: {
+    /** Where to start with the description */
     tab?: number,
+    /** How wide the resulting string can be before wrapping */
     maxLength?: number,
+    /** Maximum amount of lines for each description */
     maxLines?: number,
+    /** String before name */
     prefix?: string,
+    /** If the name (including @param delim) is too long, what to do with the description */
     onLongName?: EOnLongName,
+    /** If the name needed to be indented, continue that indentation on wrap? */
     keepIndentation?: boolean,
+    /** The string to repeat between name and description */
     repeat?: string,
+    /** String right after name */
     delim?: string,
+    /** Minimal space after name and @param delim, before description */
     minSpace?: number
 } = {}): string {
 
@@ -101,7 +110,6 @@ export function nameDescription(name: string, description: string, {
     let result = name + delim + repeat.repeat(length + padding).substr(length, padding)
     let offset = result.length
 
-
     // resolve too long name
     if (result.length > tab) {
         switch (onLongName) {
@@ -114,7 +122,7 @@ export function nameDescription(name: string, description: string, {
 
     // Word-Wrap description
     result += wordWrap(description, {
-        max: maxLength - tab,
+        max: maxLength,
         indent: keepIndentation && offset || tab,
         startOffset: offset,
         maxLines

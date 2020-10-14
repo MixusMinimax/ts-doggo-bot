@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "postinstall": "npx patch-package",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "test": "mocha -r ts-node/register test/**/*.ts",
     "start": "ts-node src/bot.ts",

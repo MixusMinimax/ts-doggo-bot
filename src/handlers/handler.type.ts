@@ -25,7 +25,7 @@ export abstract class Handler {
 
     abstract execute(args: any, body: string, message: Message, options?: HandlerContext): Promise<void | string>
 
-    defineArguments(_parser: ThrowingArgumentParser): void {}
+    defineArguments(_parser: ThrowingArgumentParser): void { }
 
     get parser() {
         const _parser = new ThrowingArgumentParser({
@@ -77,7 +77,8 @@ export abstract class ParentHandler extends Handler {
                 '',
                 ...Object.entries(this.subHandlers).map(([name, { description }]) => {
                     return nameDescription(name, description, {
-                        tab: 10,
+                        tab: 14,
+                        prefix: '  ',
                     })
                 })
             ].join('\n')

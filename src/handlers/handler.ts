@@ -14,6 +14,7 @@ import { PingHandler } from './ping.handler'
 import { PurgeHandler } from './purge.handler'
 import { SayHandler } from './say.handler'
 import { SearchMemberHandler } from './searchMember.handler'
+import { SettingsHandler } from './settings.handler'
 import { TimeHandler } from './time.handler'
 
 export const handlers: Indexable<Handler> = {
@@ -26,6 +27,7 @@ export const handlers: Indexable<Handler> = {
     links: new LinksHandler('links'),
     permission: new PermissionHandler('permission'),
     search: new SearchMemberHandler('search'),
+    settings: new SettingsHandler('settings'),
 }
 
 export async function handle(tokens: string[], body: string, message: Message): Promise<string | undefined> {

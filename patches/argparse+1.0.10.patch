@@ -1,0 +1,15 @@
+diff --git a/node_modules/argparse/lib/argument_parser.js b/node_modules/argparse/lib/argument_parser.js
+index bd9a59a..ab46e55 100644
+--- a/node_modules/argparse/lib/argument_parser.js
++++ b/node_modules/argparse/lib/argument_parser.js
+@@ -974,6 +974,10 @@ ArgumentParser.prototype._getValue = function (action, argString) {
+       name = action.type.name || action.type.displayName || '<function>';
+     }
+     var msg = format('Invalid %s value: %s', name, argString);
++    if (e.message) {
++      const emsg = String(e.message)
++      msg = `${msg} (${emsg.substring(0, 32)})`
++    }
+     if (name === '<function>') { msg += '\n' + e.message; }
+     throw argumentErrorHelper(action, msg);
+   }

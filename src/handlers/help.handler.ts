@@ -18,11 +18,11 @@ export class HelpHandler extends Handler {
         }
 
 
-        if (args.command.startsWith(config.prefix)) {
+        if (args.command?.startsWith(config.prefix)) {
             args.command = args.command.substring(config.prefix.length)?.replace(/^\s*/, '')
         }
 
-        if (args.command.length) {
+        if (args.command) {
             dlog('HANDLER.help', 'command: ' + args.command)
             const result = options.handle ? await options.handle([args.command, '-h'], body, message) : null
             if (result) {
