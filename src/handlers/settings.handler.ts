@@ -1,12 +1,11 @@
-import { HandlerContext, IntermediateHandler, ParentHandler, SubHandler } from './handler.type'
-import config from '../../config/config.json'
-import { Message } from 'discord.js'
-import ThrowingArgumentParser, { NumberRange } from '../tools/throwingArgparse'
-import { Indexable } from '../tools/types'
-import { GuildSettingsModel } from '../database/models/settings'
-import { nameDescription, padStart, parseList, reply } from '../tools/stringTools'
 import { Const } from 'argparse'
+import { Message } from 'discord.js'
 import { findBestMatch } from 'string-similarity'
+import { GuildSettingsModel } from '../database/models/settings'
+import { arrayToString } from '../tools/array.utils'
+import { nameDescription, padStart, reply } from '../tools/stringTools'
+import ThrowingArgumentParser, { NumberRange } from '../tools/throwingArgparse'
+import { HandlerContext, ParentHandler, SubHandler } from './handler.type'
 
 export class SettingsHandler extends ParentHandler {
 
@@ -66,12 +65,8 @@ class SettingsListHandler extends SubHandler {
             }\`, Results \`${page * pageLength + 1
             }-${page * pageLength + keysOnPage.length
             }/${allLength}\`\n\`\`\`${keysOnPage.map(key => {
-                const val = settings.getOption(key.key)
-                    .map(e => (typeof e === 'string') ? `"${e}"` : `${e}`)
-                const valstr = val.length > 1 ?
-                    `[${val.join(', ')}]` :
-                    `${val[0]}`
-                return nameDescription(key.key, valstr, {
+                const values = arrayToString(settings.getOption(key.key))
+                return nameDescription(key.key, values, {
                     tab: 32,
                     delim: ':',
                     maxLength: 96,
@@ -145,12 +140,10 @@ class SettingsUpdateOperationHandler extends SubHandler {
             await settings.deleteOption(key)
             return reply(message.author, `> Removed key \`${key}\``)
         }
-        // Parse values
-        const valuesArray = parseList(x => x, values.join(' '))
         // Set
         if (this.operation === SettingsUpdateOperation.SET) {
-            await settings.setOption(key, valuesArray, { overwrite: true })
-            return 'set'
+            await settings.setOption(key, values, { overwrite: true })
+            return reply(message.author, `> Set \`${key}\` to \`${arrayToString(values)}\``)
         }
 
         // Insert
@@ -165,12 +158,12 @@ class SettingsUpdateOperationHandler extends SubHandler {
             case SettingsUpdateOperation.INSERT:
             case SettingsUpdateOperation.PREPEND:
             case SettingsUpdateOperation.APPEND:
-                await settings.setOption(key, valuesArray, { insertAt: index })
+                await settings.setOption(key, values, { insertAt: index })
                 return 'insert'
         }
         // Remove
         if (this.operation === SettingsUpdateOperation.REMOVE) {
-            await settings.setOption(key, [], { removeValues: valuesArray })
+            await settings.setOption(key, [], { removeValues: values })
             return 'remove'
         }
         return 'Not implemented'

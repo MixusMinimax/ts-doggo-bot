@@ -2,8 +2,8 @@ import { Const } from 'argparse'
 import { Message } from 'discord.js'
 import { LinkLists } from '../database/models/links'
 import { dlog } from '../tools/log'
-import { parseList, reply, singularPlural } from '../tools/stringTools'
-import ThrowingArgumentParser from '../tools/throwingArgparse'
+import { reply, singularPlural } from '../tools/stringTools'
+import ThrowingArgumentParser, { NumberRange } from '../tools/throwingArgparse'
 import { HandlerContext, ParentHandler, SubHandler } from './handler.type'
 
 export class LinksHandler extends ParentHandler {
@@ -78,14 +78,13 @@ class LinksRemoveHandler extends SubHandler {
 
     description = 'Remove Links from the current Channel.'
 
-    async execute(args: any, body: string, message: Message, _context: HandlerContext = {}): Promise<string> {
+    async execute(args: { indices: number[] }, body: string, message: Message, _context: HandlerContext = {}): Promise<string> {
 
         if (!message.guild) {
             throw new Error('No Guild')
         }
 
-        const indicesString = args.indices.join(' ')
-        const indices = parseList(x => +x, indicesString)
+        const indices = args.indices
         dlog('HANDLER.links.remove', `Indices: ${indices}`)
 
         const links = await LinkLists.findOneOrCreate(message.guild.id, message.channel.id)
@@ -103,6 +102,7 @@ class LinksRemoveHandler extends SubHandler {
         _parser.addArgument('indices', {
             nargs: Const.REMAINDER,
             defaultValue: [],
+            type: NumberRange()
         })
     }
 }

@@ -2,12 +2,8 @@ import { User } from 'discord.js'
 
 export function tokenize(s: string | undefined): string[] {
     return (
-        s?.match(/"(\\"|[^"])*"|'(\\'|[^'])*'|`.*`|(\\ |\S)+/g) || []
-    ).map(token =>
-        token.match(/"(\\"|[^"])*"|'(\\'|[^'])*'/)
-        && eval(token)
-        || token
-    )
+        s?.match(/("(\\"|[^"])*?"|(\\\s|\\,|[^ ,])+)(?=\s|,|$)/g) || []
+    ).map(e => e.trim().replace(/^"(.*)"$/, '$1'))
 }
 
 export function wordWrap(s: string, {
@@ -133,18 +129,6 @@ export function nameDescription(name: string, description: string, {
 
 export function reply(user: User, message: string, args: { delim?: string } = {}): string {
     return `<@${user.id}>${args.delim || '\n'}${message}`
-}
-
-export function parseList<T>(parseElement: (element: string) => T, s: string): T[] {
-    let x: string = s
-    x = x.match(/\(([^()]+)\)/)?.[1] || x
-    x = x.match(/\[([^\[\]]+)\]/)?.[1] || x
-    x = x.trim().replace(/^,*|,*$/, '')
-    const tokens = x
-        .split(/ *(?<!\\), *|(?<!\\) +/).map(e => e.trim())
-        .filter(e => e !== undefined)
-        .map(e => e.replace(/\\ /g, ' ').replace(/\\,/g, ','))
-    return tokens.map(parseElement)
 }
 
 export function singularPlural(amount: number, singular: string, plural?: string) {

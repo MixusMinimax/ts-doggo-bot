@@ -71,3 +71,9 @@ function removeAt<T>(initial: T[], indices: number[]): ArrayUpdateResult<T> {
         removedIndices: indices
     }
 }
+
+export function arrayToString<T>(a: T[]): string {
+    return `[${a
+        .map(e => (typeof e === 'string') ? `"${e}"` : `${e}`)
+        .join(', ')}]`
+}
