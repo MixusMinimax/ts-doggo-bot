@@ -1,14 +1,12 @@
-
 import { Message } from 'discord.js'
 import { padStart } from '../tools/stringTools'
-import ThrowingArgumentParser from '../tools/throwingArgparse'
 import { Handler, HandlerContext } from './handler.type'
 
 export class TimeHandler extends Handler {
 
     description = 'Print current time'
 
-    async execute(_args: any, _body: string, message: Message, _options: HandlerContext): Promise<void> {
+    async execute(_args: any, _body: string, message: Message, _context: HandlerContext): Promise<void> {
         const today = new Date()
         const date = padStart(2, '0')`${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
         const time = padStart(2, '0')`${today.getHours()}:${today.getMinutes()}`

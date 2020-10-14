@@ -41,13 +41,21 @@ export class GuildSettings implements Indexable<any> {
 
     async setOption(
         this: DocumentType<GuildSettings>, key: string, value?: PropertyType | PropertyType[],
-        { insertAt, removeIndices = [] }: { insertAt?: number, removeIndices?: number[] } = {}
+        {
+            overwrite = false, insertAt, removeValues = []
+        }: {
+            overwrite?: boolean, insertAt?: number, removeValues?: PropertyType[]
+        } = {}
     ): Promise<void | never> {
         if (!Array.isArray(value)) {
             value = [value as PropertyType]
         }
-        if (removeIndices.length) {
-            dlog('MONGO.settings', `Removing indices ${removeIndices} for ${key} for guild ${this.guild}`)
+        if (overwrite) {
+            dlog('MONGO.settings', `Overwriting ${key} with [${removeValues}] for guild ${this.guild}`)
+            // TODO
+        }
+        if (removeValues.length) {
+            dlog('MONGO.settings', `Removing values [${removeValues}] for ${key} for guild ${this.guild}`)
             // TODO
         }
         if (insertAt === undefined) {

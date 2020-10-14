@@ -1,7 +1,7 @@
 import argparse from 'argparse'
 import { Message } from 'discord.js'
 import config from '../../config/config.json'
-import { EOnLongName, nameDescription } from '../tools/stringTools'
+import { nameDescription } from '../tools/stringTools'
 import ThrowingArgumentParser from '../tools/throwingArgparse'
 import { Indexable } from '../tools/types'
 
@@ -23,7 +23,7 @@ export abstract class Handler {
         this.prog = config.prefix + prog
     }
 
-    abstract execute(args: any, body: string, message: Message, options?: HandlerContext): Promise<void | string>
+    abstract execute(args: any, body: string, message: Message, context?: HandlerContext): Promise<void | string>
 
     defineArguments(_parser: ThrowingArgumentParser): void { }
 
@@ -52,12 +52,12 @@ export abstract class ParentHandler extends Handler {
     subHandlers: Indexable<SubHandler> = {}
     defaultSubCommand?: string
 
-    async execute(args: any, body: string, message: Message, _options: HandlerContext = {}): Promise<void | string> {
-        if (!this.defaultSubCommand) {
+    async execute(args: any, body: string, message: Message, _context: HandlerContext = {}): Promise<void | string> {
+        const tokens: string[] = (args.command && args.command.length > 0 && args.command) || []
+        const command: string | undefined = tokens?.shift() || this.defaultSubCommand
+        if (command === undefined) {
             return `> No subcommand specified!`
         }
-        const tokens: string[] = (args.command && args.command.length > 0 && args.command) || []
-        const command: string = tokens?.shift() || this.defaultSubCommand
         const handler = this.subHandlers[command]
 
         if (handler) {
@@ -109,5 +109,6 @@ export abstract class ParentHandler extends Handler {
 export abstract class IntermediateHandler extends ParentHandler implements SubHandler {
     constructor(parent: string, sub: string) {
         super(parent + ' ' + sub)
+        this.prog = this.prog.replace(config.prefix, '')
     }
 }

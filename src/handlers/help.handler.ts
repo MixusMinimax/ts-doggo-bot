@@ -1,4 +1,4 @@
-import argparse, { Const } from 'argparse'
+import { Const } from 'argparse'
 import { Message } from 'discord.js'
 import config from '../../config/config.json'
 import { dlog } from '../tools/log'
@@ -11,9 +11,9 @@ export class HelpHandler extends Handler {
     tab: number = 16
     description = 'Print help'
 
-    async execute(args: { command: string }, body: string, message: Message, options: HandlerContext): Promise<string> {
+    async execute(args: { command: string }, body: string, message: Message, context: HandlerContext): Promise<string> {
 
-        if (!options.handlers) {
+        if (!context.handlers) {
             throw new Error('Handlers not initialized')
         }
 
@@ -24,7 +24,7 @@ export class HelpHandler extends Handler {
 
         if (args.command) {
             dlog('HANDLER.help', 'command: ' + args.command)
-            const result = options.handle ? await options.handle([args.command, '-h'], body, message) : null
+            const result = context.handle ? await context.handle([args.command, '-h'], body, message) : null
             if (result) {
                 return result
             } else {
@@ -35,8 +35,8 @@ export class HelpHandler extends Handler {
                 message.author,
                 '```\n' +
                 'Avaiable commands:\n' +
-                Object.keys(options.handlers)
-                    .map(key => nameDescription(key, options.handlers?.[key].parser.description || '---', {
+                Object.keys(context.handlers)
+                    .map(key => nameDescription(key, context.handlers?.[key].parser.description || '---', {
                         tab: this.tab,
                         prefix: '  ' + config.prefix
                     }))

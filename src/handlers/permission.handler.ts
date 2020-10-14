@@ -10,7 +10,7 @@ export class PermissionHandler extends Handler {
 
     async execute(
         { reset, user: _user, level: _level }: { reset: boolean, user: string | null, level: string | null, },
-        body: string, message: Message, options: HandlerContext
+        body: string, message: Message, _context: HandlerContext
     ): Promise<string> {
         let level = _level !== null ? +_level : null
         if (level !== null && (isNaN(level) || level < 0 || level > 10)) {

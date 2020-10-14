@@ -1,14 +1,13 @@
 import { Message, MessageEmbed } from 'discord.js'
 import config from '../../config/config.json'
 import package_json from '../../package.json'
-import ThrowingArgumentParser from '../tools/throwingArgparse'
 import { Handler, HandlerContext } from './handler.type'
 
 export class InfoHandler extends Handler {
 
     description = 'Print info'
 
-    async execute(args: any, body: string, message: Message, options: HandlerContext): Promise<void> {
+    async execute(args: any, body: string, message: Message, _context: HandlerContext): Promise<void> {
         const embed = new MessageEmbed()
             .setColor('#0099ff')
             .setTitle(config.info.name)

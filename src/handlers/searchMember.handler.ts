@@ -14,7 +14,7 @@ export class SearchMemberHandler extends Handler {
         }: {
             user: string, limit: number, minCertainty: number, mentions: boolean
         },
-        body: string, message: Message, options: HandlerContext
+        body: string, message: Message, _context: HandlerContext
     ): Promise<string> {
         const results = findMembers(message.guild!, user, {
             maxResults: limit,

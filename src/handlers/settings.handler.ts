@@ -4,7 +4,7 @@ import { Message } from 'discord.js'
 import ThrowingArgumentParser, { NumberRange } from '../tools/throwingArgparse'
 import { Indexable } from '../tools/types'
 import { GuildSettingsModel } from '../database/models/settings'
-import { nameDescription, padStart, reply } from '../tools/stringTools'
+import { nameDescription, padStart, parseList, reply } from '../tools/stringTools'
 import { Const } from 'argparse'
 import { findBestMatch } from 'string-similarity'
 
@@ -22,7 +22,7 @@ export class SettingsHandler extends ParentHandler {
     }
 }
 
-export class SettingsListHandler extends SubHandler {
+class SettingsListHandler extends SubHandler {
 
     description = 'List settings.'
 
@@ -63,15 +63,19 @@ export class SettingsListHandler extends SubHandler {
             }/${Math.ceil(allLength / pageLength)
             }\`, Results \`${page * pageLength + 1
             }-${page * pageLength + keysOnPage.length
-            }/${allLength}\`\n\`\`\`${keysOnPage.map(key =>
-                nameDescription(key.key, `[${[...settings.settings.get(key.key)?.values() || []]
+            }/${allLength}\`\n\`\`\`${keysOnPage.map(key => {
+                const val = [...settings.settings.get(key.key)?.values() || []]
                     .map(e => (typeof e === 'string') ? `"${e}"` : `${e}`)
-                    .join(', ')}]`, {
+                const valstr = val.length > 1 ?
+                    `[${val.join(', ')}]` :
+                    `${val[0]}`
+                return nameDescription(key.key, valstr, {
                     tab: 32,
                     delim: ':',
                     maxLength: 96,
                     prefix: key.similarity !== undefined ? padStart(2, '0')`${Math.round(key.similarity * 100)}% ` : undefined
                 })
+            }
             ).join('\n')
             }\`\`\``
         )
@@ -96,15 +100,115 @@ export class SettingsListHandler extends SubHandler {
     }
 }
 
-export class SettingsUpdateHandler extends IntermediateHandler {
+class SettingsUpdateHandler extends IntermediateHandler {
 
     description = 'Update a setting.'
     subHandlers: Indexable<SubHandler>
 
     constructor(parent: string, sub: string) {
         super(parent, sub)
-        this.subHandlers = {
+        this.subHandlers = {}
+        for (const operation of Object.values(SettingsUpdateOperation)) {
+            this.subHandlers[operation] = new SettingsUpdateOperationHandler(this.prog, operation)
+        }
+    }
+}
 
+enum SettingsUpdateOperation {
+    SET = 'set',
+    INSERT = 'insert',
+    PREPEND = 'prepend',
+    APPEND = 'append',
+    REMOVE = 'remove',
+    UNSET = 'unset'
+}
+
+class SettingsUpdateOperationHandler extends SubHandler {
+
+    static descriptions: {
+        [key in SettingsUpdateOperation]: string
+    } = {
+            [SettingsUpdateOperation.SET]: 'Set the value or values.',
+            [SettingsUpdateOperation.INSERT]: 'Insert values at specified index',
+            [SettingsUpdateOperation.PREPEND]: 'Insert at beginning.',
+            [SettingsUpdateOperation.APPEND]: 'Insert at end.',
+            [SettingsUpdateOperation.REMOVE]: 'Remove specified values.',
+            [SettingsUpdateOperation.UNSET]: 'Remove the key entirely.'
+        }
+
+    operation: SettingsUpdateOperation
+    description: string
+
+    constructor(parent: string, operation: SettingsUpdateOperation) {
+        super(parent, operation)
+        this.operation = operation
+        this.description = SettingsUpdateOperationHandler.descriptions[operation]
+    }
+
+    async execute(
+        { key, index, values = [] }: { key: string, index?: number, values?: string[] },
+        body: string, message: Message, _context: HandlerContext = {}
+    ): Promise<string> {
+        if (!message.guild) {
+            throw new Error('No guild')
+        }
+        const settings = await GuildSettingsModel.findOneOrCreate(message.guild)
+
+        if (this.operation === SettingsUpdateOperation.UNSET) {
+            settings.settings.delete(key)
+            await settings.save()
+            return reply(message.author, `> Removed key \`${key}\``)
+        }
+        // Parse values
+        const valuesArray = parseList(x => x, values.join(' '))
+        // Set
+        if (this.operation === SettingsUpdateOperation.SET) {
+            await settings.setOption(key, valuesArray, { overwrite: true })
+            return 'set'
+        }
+
+        // Insert
+        switch (this.operation) {
+            case SettingsUpdateOperation.PREPEND:
+                index = 0
+                break
+            case SettingsUpdateOperation.APPEND:
+                index = -1
+        }
+        switch (this.operation) {
+            case SettingsUpdateOperation.INSERT:
+            case SettingsUpdateOperation.PREPEND:
+            case SettingsUpdateOperation.APPEND:
+                await settings.setOption(key, valuesArray, { insertAt: index })
+                return 'insert'
+        }
+        // Remove
+        if (this.operation === SettingsUpdateOperation.REMOVE) {
+            await settings.setOption(key, [], { removeValues: valuesArray })
+            return 'remove'
+        }
+        return 'Not implemented'
+    }
+
+    defineArguments(_parser: ThrowingArgumentParser) {
+        _parser.addArgument('key', {
+            help: 'Which option to update.'
+        })
+        switch (this.operation) {
+            case SettingsUpdateOperation.INSERT:
+                _parser.addArgument('index', {
+                    type: NumberRange(),
+                    help: 'Where to insert the value or values'
+                })
+            // Fall through to values
+            case SettingsUpdateOperation.SET:
+            case SettingsUpdateOperation.PREPEND:
+            case SettingsUpdateOperation.APPEND:
+            case SettingsUpdateOperation.REMOVE:
+                _parser.addArgument('values', {
+                    nargs: Const.REMAINDER,
+                    help: 'Value, or values'
+                })
         }
     }
 }
