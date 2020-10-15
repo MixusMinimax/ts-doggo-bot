@@ -43,9 +43,10 @@ export class PermissionHandler extends Handler {
         }
 
         if (level === null && !reset) {
+            const permission = await PermissionHandler.calculatePermissionLevel(user, user.guild)
             return reply(message.author, `> ${_user === null ? 'Your' : `${user.displayName}'s`
-                } permission level is: \`${context.permissionLevel.level
-                }\`, reason: \`${context.permissionLevel.reason}\``)
+                } permission level is: \`${permission.level
+                }\`, reason: \`${permission.reason}\``)
         }
 
         assertPermission(context.permissionLevel.level, REQUIRED_LEVEL_TO_UPDATE)
