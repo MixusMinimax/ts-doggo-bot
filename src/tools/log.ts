@@ -8,7 +8,8 @@ const filter: IFilter = {
         ready: true,
         guildCreate: true,
         guildDelete: true,
-        token: true
+        token: true,
+        owner: false,
     },
     MONGO: {
         default: true,
@@ -17,7 +18,7 @@ const filter: IFilter = {
             default: true,
             links: true,
             settings: true,
-        }
+        },
     },
     HANDLER: {
         default: {
@@ -32,12 +33,12 @@ const filter: IFilter = {
         permission: {
             default: true,
         },
-        help: true
+        help: true,
     },
     UTILS: {
         default: false,
-        discord: true
-    }
+        discord: true,
+    },
 }
 
 export function isEnabled(tag: string): { enabled: boolean, newTag: string } {

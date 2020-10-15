@@ -1,10 +1,9 @@
 import { DocumentType, getModelForClass, modelOptions, prop } from "@typegoose/typegoose"
-import { mapOptions } from "@typegoose/typegoose/lib/internal/utils"
 import { Guild } from "discord.js"
 import { alterArray, ArrayUpdateResult } from "../../tools/array.utils"
 import { dlog } from "../../tools/log"
 import { arrayToString } from "../../tools/string.utils"
-import { Indexable, KeyError, ValueError } from "../../tools/types"
+import { Indexable } from "../../tools/types"
 
 function dotToMongo(s: string): string {
     return s.replace(/\./g, ':')
@@ -47,8 +46,14 @@ export class GuildSettings implements Indexable<any> {
         return Object.keys(this.settings).map(mongoToDot)
     }
 
+    getSingleOption<T>(this: DocumentType<GuildSettings>, key: string, type: ((x: string) => T),
+        defaultValue: T): T {
+        return this.getOption(key, type, defaultValue) as T
+    }
+
     getOption<T>(
-        this: DocumentType<GuildSettings>, key: string, type: ((x: string) => T) | [((x: string) => T)]
+        this: DocumentType<GuildSettings>, key: string, type: ((x: string) => T) | [((x: string) => T)],
+        defaultValue: T | T[] | null = null
     ): T | T[] | null {
         key = dotToMongo(key)
         const val = this.settings[key] || []
@@ -70,7 +75,7 @@ export class GuildSettings implements Indexable<any> {
                     return type(e)
                 } catch { }
             }
-            return null
+            return defaultValue
         }
     }
 

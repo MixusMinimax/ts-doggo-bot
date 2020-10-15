@@ -24,7 +24,7 @@ export abstract class Handler {
         this.prog = config.prefix + prog
     }
 
-    abstract execute(args: any, body: string, message: Message, context?: HandlerContext): Promise<void | string>
+    abstract execute(args: any, body: string, message: Message, context: HandlerContext): Promise<void | string>
 
     defineArguments(_parser: ThrowingArgumentParser): void { }
 
@@ -53,7 +53,7 @@ export abstract class ParentHandler extends Handler {
     subHandlers: Indexable<SubHandler> = {}
     defaultSubCommand?: string
 
-    async execute(args: any, body: string, message: Message, _context: HandlerContext): Promise<void | string> {
+    async execute(args: any, body: string, message: Message, context: HandlerContext): Promise<void | string> {
         const tokens: string[] = (args.command && args.command.length > 0 && args.command) || []
         const command: string | undefined = tokens?.shift() || this.defaultSubCommand
         if (command === undefined) {
@@ -63,7 +63,7 @@ export abstract class ParentHandler extends Handler {
 
         if (handler) {
             const parsedArgs = handler.parser.parseKnownArgs(tokens)
-            return (await handler.execute(parsedArgs[0], body, message)) || undefined
+            return (await handler.execute(parsedArgs[0], body, message, context)) || undefined
         } else {
             return `> Command not found: \`${this.prog} ${command}\``
         }

@@ -1,13 +1,21 @@
 import { Const } from 'argparse'
 import { Message } from 'discord.js'
-import ThrowingArgumentParser from '../tools/throwingArgparse'
+import { GuildSettingsModel } from '../database/models/settings'
+import ThrowingArgumentParser, { NumberRange } from '../tools/throwingArgparse'
 import { Handler, HandlerContext } from './handler.type'
+import { assertPermission } from './permission.handler'
+
+const PATH_REQUIRED_LEVEL = 'permissions.handlers.purge'
+const DEFAULT_REQUIRED_LEVEL = 9
 
 export class PurgeHandler extends Handler {
 
     description = 'Bulk-delete messages'
 
-    async execute({ amount }: { amount?: number }, _body: string, message: Message, _context: HandlerContext): Promise<void> {
+    async execute({ amount }: { amount?: number }, _body: string, message: Message, context: HandlerContext): Promise<void> {
+        const settings = await GuildSettingsModel.findOneOrCreate(message.guild!)
+        const required = settings.getSingleOption(PATH_REQUIRED_LEVEL, NumberRange(0, 10), DEFAULT_REQUIRED_LEVEL)
+        assertPermission(context.permissionLevel.level, required)
         if (!amount || amount < 1 || amount > 100) {
             message.reply('Please provide a number between 1 and 100 for the number of messages to delete')
         } else {

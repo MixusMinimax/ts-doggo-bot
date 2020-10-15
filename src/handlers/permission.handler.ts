@@ -1,8 +1,6 @@
 import { Const } from 'argparse'
 import { Guild, GuildMember, Message, User } from 'discord.js'
-import { config } from 'process'
-import { stringify } from 'querystring'
-import { GuildSettings } from '../database/models/settings'
+import { GuildSettingsModel } from '../database/models/settings'
 import { tryFindMember } from '../tools/discord.utils'
 import { reply } from '../tools/string.utils'
 import ThrowingArgumentParser, { NumberRange } from '../tools/throwingArgparse'
@@ -16,10 +14,11 @@ const PERMISSION_OVERRIDE = 'permissions.override'
 /* Defaults: */
 const DEFAULT_MODERATOR_LEVEL = 5
 const DEFAULT_LEVEL = 0
+const MAX_OVERRIDE = 9
 const REQUIRED_LEVEL_TO_UPDATE = 10
 
 export class PermissionError extends Error {
-    constructor(public actual: number, public required: number, msg?: string) {
+    constructor(public actual: number, public required: number, msg: string | undefined = 'You do not meet the required permission level!') {
         super(msg)
     }
 }
@@ -49,9 +48,9 @@ export class PermissionHandler extends Handler {
                 }\`, reason: \`${context.permissionLevel.reason}\``)
         }
 
-        assertPermission(context.permissionLevel.level, REQUIRED_LEVEL_TO_UPDATE, 'You do not meet the required permission level!')
+        assertPermission(context.permissionLevel.level, REQUIRED_LEVEL_TO_UPDATE)
 
-        const guildSettings = await GuildSettings.findOneOrCreate(message.guild!)
+        const guildSettings = await GuildSettingsModel.findOneOrCreate(message.guild!)
         const overrideKey = `${PERMISSION_OVERRIDE}.${user.user.tag}`
 
         if (reset) {
@@ -75,8 +74,8 @@ export class PermissionHandler extends Handler {
         })
         _parser.addArgument('level', {
             nargs: Const.OPTIONAL,
-            type: NumberRange(0, 10),
-            help: 'Override the User\'s Permission Level. (0-10)'
+            type: NumberRange(0, MAX_OVERRIDE),
+            help: `Override the User\'s Permission Level. (0-${MAX_OVERRIDE})`
         })
     }
 
@@ -95,16 +94,16 @@ export class PermissionHandler extends Handler {
         }
 
         // Override
-        const guildSettings = await GuildSettings.findOneOrCreate(guild)
+        const guildSettings = await GuildSettingsModel.findOneOrCreate(guild)
         const overrideKey = `${PERMISSION_OVERRIDE}.${user.user.tag}`
-        const overrideValue = guildSettings.getOption(overrideKey, NumberRange(0, 10)) as number | null
+        const overrideValue = guildSettings.getOption(overrideKey, NumberRange(0, MAX_OVERRIDE)) as number | null
         if (overrideValue !== null) {
             return { level: overrideValue, reason: 'override' }
         }
 
         // Moderator
         const modRoles = guildSettings.getOption(MODERATOR_ROLES, [String]) as string[]
-        const modLevel = guildSettings.getOption(MODERATOR_LEVEL, NumberRange(0, 10)) as number
+        const modLevel = guildSettings.getOption(MODERATOR_LEVEL, NumberRange(0, MAX_OVERRIDE)) as number
             || DEFAULT_MODERATOR_LEVEL
         if (user.roles.cache.some(r => modRoles.includes(r.name))) {
             return { level: modLevel, reason: 'moderator' }

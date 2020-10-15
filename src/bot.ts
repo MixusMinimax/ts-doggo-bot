@@ -86,7 +86,9 @@ if (token == null) {
     exit(-1)
 }
 
-(async () => {
-    await database.connect()
-    await client.login(token)
-})()
+dlog('BOT.owner', `Owner Tag: {${process.env.OWNER_TAG}}`)
+
+    ; (async () => {
+        await database.connect()
+        await client.login(token)
+    })()

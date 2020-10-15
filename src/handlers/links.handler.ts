@@ -1,10 +1,15 @@
 import { Const } from 'argparse'
 import { Message } from 'discord.js'
 import { LinkLists } from '../database/models/links'
+import { GuildSettingsModel } from '../database/models/settings'
 import { dlog } from '../tools/log'
 import { reply, singularPlural } from '../tools/string.utils'
 import ThrowingArgumentParser, { NumberRange } from '../tools/throwingArgparse'
 import { HandlerContext, ParentHandler, SubHandler } from './handler.type'
+import { assertPermission } from './permission.handler'
+
+const PATH_REQUIRED_LEVEL_TO_UPDATE = 'permissions.handlers.links.update'
+const DEFAULT_REQUIRED_LEVEL_TO_UPDATE = 5
 
 export class LinksHandler extends ParentHandler {
 
@@ -46,11 +51,13 @@ class LinksAddHandler extends SubHandler {
 
     description = 'Add Links to the current Channel.'
 
-    async execute(args: any, body: string, message: Message, _context: HandlerContext): Promise<string> {
-
+    async execute(args: any, body: string, message: Message, context: HandlerContext): Promise<string> {
         if (!message.guild) {
             throw new Error('No Guild')
         }
+        const settings = await GuildSettingsModel.findOneOrCreate(message.guild!)
+        const required = settings.getSingleOption(PATH_REQUIRED_LEVEL_TO_UPDATE, NumberRange(0, 10), DEFAULT_REQUIRED_LEVEL_TO_UPDATE)
+        assertPermission(context.permissionLevel.level, required)
 
         const lines: string[] = body.split('\n').map(line => line.trim()).filter(line => line)
 
@@ -78,11 +85,13 @@ class LinksRemoveHandler extends SubHandler {
 
     description = 'Remove Links from the current Channel.'
 
-    async execute(args: { indices: number[] }, body: string, message: Message, _context: HandlerContext): Promise<string> {
-
+    async execute(args: { indices: number[] }, body: string, message: Message, context: HandlerContext): Promise<string> {
         if (!message.guild) {
             throw new Error('No Guild')
         }
+        const settings = await GuildSettingsModel.findOneOrCreate(message.guild!)
+        const required = settings.getSingleOption(PATH_REQUIRED_LEVEL_TO_UPDATE, NumberRange(0, 10), DEFAULT_REQUIRED_LEVEL_TO_UPDATE)
+        assertPermission(context.permissionLevel.level, required)
 
         const indices = args.indices
         dlog('HANDLER.links.remove', `Indices: ${indices}`)

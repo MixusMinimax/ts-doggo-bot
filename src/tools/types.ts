@@ -1,5 +1,3 @@
-import { DMChannel, Guild, NewsChannel, TextChannel, User } from 'discord.js'
-
 export interface Indexable<T> {
     [key: string]: T
 }

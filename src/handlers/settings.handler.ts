@@ -2,10 +2,15 @@ import { Const } from 'argparse'
 import { Message } from 'discord.js'
 import { findBestMatch } from 'string-similarity'
 import { GuildSettingsModel } from '../database/models/settings'
-import { arrayToString } from '../tools/string.utils'
-import { nameDescription, padStart, reply } from '../tools/string.utils'
+import { arrayToString, nameDescription, padStart, reply } from '../tools/string.utils'
 import ThrowingArgumentParser, { NumberRange } from '../tools/throwingArgparse'
 import { HandlerContext, ParentHandler, SubHandler } from './handler.type'
+import { assertPermission } from './permission.handler'
+
+const PATH_REQUIRED_LEVEL_TO_UPDATE = 'permissions.handlers.settings.update'
+const DEFAULT_REQUIRED_LEVEL_TO_UPDATE = 9
+const PATH_REQUIRED_LEVEL_TO_VIEW = 'permissions.handlers.settings.view'
+const DEFAULT_REQUIRED_LEVEL_TO_VIEW = 5
 
 export class SettingsHandler extends ParentHandler {
 
@@ -34,8 +39,11 @@ class SettingsListHandler extends SubHandler {
         if (!message.guild) {
             throw new Error('No guild')
         }
+        const settings = await GuildSettingsModel.findOneOrCreate(message.guild!)
+        const required = settings.getSingleOption(PATH_REQUIRED_LEVEL_TO_VIEW, NumberRange(0, 10), DEFAULT_REQUIRED_LEVEL_TO_VIEW)
+        assertPermission(context.permissionLevel.level, required)
+
         page--
-        const settings = await GuildSettingsModel.findOneOrCreate(message.guild)
         let keysOnPage: string[] | { key: string, similarity?: number }[] = settings.getNames()
         const allLength = keysOnPage.length
 
@@ -130,12 +138,15 @@ class SettingsUpdateOperationHandler extends SubHandler {
 
     async execute(
         { key, index, values = [] }: { key: string, index?: number, values?: string[] },
-        body: string, message: Message, _context: HandlerContext
+        body: string, message: Message, context: HandlerContext
     ): Promise<string> {
         if (!message.guild) {
             throw new Error('No guild')
         }
-        const settings = await GuildSettingsModel.findOneOrCreate(message.guild)
+        const settings = await GuildSettingsModel.findOneOrCreate(message.guild!)
+        const required = settings.getSingleOption(PATH_REQUIRED_LEVEL_TO_UPDATE, NumberRange(0, 10), DEFAULT_REQUIRED_LEVEL_TO_UPDATE)
+        assertPermission(context.permissionLevel.level, required)
+
         if (this.operation === SettingsUpdateOperation.UNSET) {
             await settings.deleteOption(key)
             return reply(message.author, `> Removed key \`${key}\``)
@@ -199,5 +210,3 @@ class SettingsUpdateOperationHandler extends SubHandler {
         }
     }
 }
-
-// TODO: update set, update insert, update prepend, update append, update remove, update unset
