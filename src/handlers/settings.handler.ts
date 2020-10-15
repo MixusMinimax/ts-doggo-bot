@@ -65,7 +65,7 @@ class SettingsListHandler extends SubHandler {
             }\`, Results \`${page * pageLength + 1
             }-${page * pageLength + keysOnPage.length
             }/${allLength}\`\n\`\`\`${keysOnPage.map(key => {
-                const values = arrayToString(settings.getOption(key.key))
+                const values = arrayToString(settings.getOption(key.key, [String]) as string[])
                 return nameDescription(key.key, values, {
                     tab: 32,
                     delim: ':',
@@ -130,7 +130,7 @@ class SettingsUpdateOperationHandler extends SubHandler {
 
     async execute(
         { key, index, values = [] }: { key: string, index?: number, values?: string[] },
-        body: string, message: Message, _context: HandlerContext = {}
+        body: string, message: Message, _context: HandlerContext
     ): Promise<string> {
         if (!message.guild) {
             throw new Error('No guild')

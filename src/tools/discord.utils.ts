@@ -1,5 +1,6 @@
-import { Guild, GuildMember } from 'discord.js'
+import { Guild, GuildMember, User } from 'discord.js'
 import stringSimilarity from 'string-similarity'
+import { GuildSettings } from '../database/models/settings'
 import { dlog } from './log'
 import { ClearTextError } from './types'
 

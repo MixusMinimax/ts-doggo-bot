@@ -9,7 +9,7 @@ import { Handler } from './handler.type'
 import { HelpHandler } from './help.handler'
 import { InfoHandler } from './info.handler'
 import { LinksHandler } from './links.handler'
-import { PermissionHandler } from './permission.handler'
+import { PermissionError, PermissionHandler } from './permission.handler'
 import { PingHandler } from './ping.handler'
 import { PurgeHandler } from './purge.handler'
 import { SayHandler } from './say.handler'
@@ -32,6 +32,9 @@ export const handlers: Indexable<Handler> = {
 
 export async function handle(tokens: string[], body: string, message: Message): Promise<string | undefined> {
 
+    // TODO: Calculate Permission level
+    const permissionLevel = 0
+
     dlog('HANDLER', `executing: "${config.prefix}${tokens.join(' ')}"`)
 
     const cmd: string | undefined = tokens.shift()
@@ -49,7 +52,8 @@ export async function handle(tokens: string[], body: string, message: Message): 
 
                     return (await handler.execute(args[0], body, message, {
                         handlers,
-                        handle
+                        handle,
+                        permissionLevel: await PermissionHandler.calculatePermissionLevel(message.author, message.guild!)
                     })) || undefined
                 } catch (error) {
                     if (debug) {
@@ -65,12 +69,17 @@ export async function handle(tokens: string[], body: string, message: Message): 
                         `> Help for the command \`${error.prog}\`:\n`
                         + '```\n' + error.message + '\n```'
                     )
+                } else if (error instanceof PermissionError) {
+                    return reply(
+                        message.author, `> ${error.message || 'Permission Error:'
+                        } Required: \`${error.required}\`; Actual: \`${error.actual}\``
+                    )
                 } else if (error instanceof ClearTextError) {
                     return error.message
                 } else if (error instanceof Error) {
-                    return '```\n' + error.message + '\n```'
+                    return reply(message.author, '```\n' + error.message + '\n```')
                 } else {
-                    return '> Unknown Error'
+                    return reply(message.author, '> Unknown Error')
                 }
             }
         } else {

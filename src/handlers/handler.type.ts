@@ -10,8 +10,9 @@ export class HandlerSettings implements Indexable<any> {
 }
 
 export interface HandlerContext {
-    handlers?: Indexable<Handler>,
-    handle?: (tokens: string[], body: string, message: Message) => Promise<string | undefined>
+    handlers: Indexable<Handler>,
+    handle: (tokens: string[], body: string, message: Message) => Promise<string | undefined>,
+    permissionLevel: { level: number, reason: string }
 }
 
 export abstract class Handler {
@@ -52,7 +53,7 @@ export abstract class ParentHandler extends Handler {
     subHandlers: Indexable<SubHandler> = {}
     defaultSubCommand?: string
 
-    async execute(args: any, body: string, message: Message, _context: HandlerContext = {}): Promise<void | string> {
+    async execute(args: any, body: string, message: Message, _context: HandlerContext): Promise<void | string> {
         const tokens: string[] = (args.command && args.command.length > 0 && args.command) || []
         const command: string | undefined = tokens?.shift() || this.defaultSubCommand
         if (command === undefined) {

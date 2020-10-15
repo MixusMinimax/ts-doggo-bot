@@ -47,9 +47,31 @@ export class GuildSettings implements Indexable<any> {
         return Object.keys(this.settings).map(mongoToDot)
     }
 
-    getOption(this: DocumentType<GuildSettings>, key: string): string[] {
+    getOption<T>(
+        this: DocumentType<GuildSettings>, key: string, type: ((x: string) => T) | [((x: string) => T)]
+    ): T | T[] | null {
         key = dotToMongo(key)
-        return this.settings[key] || []
+        const val = this.settings[key] || []
+        if (Array.isArray(type)) {
+            const nothing = Symbol('nothing')
+            return val
+                .map(e => {
+                    try {
+                        return type[0](e)
+                    } catch {
+                        return nothing
+                    }
+                })
+                .filter(e => e !== nothing)
+                .map(e => e as T)
+        } else {
+            for (const e of val) {
+                try {
+                    return type(e)
+                } catch { }
+            }
+            return null
+        }
     }
 
     async deleteOption(this: DocumentType<GuildSettings>, key: string) {
@@ -58,14 +80,21 @@ export class GuildSettings implements Indexable<any> {
         return await this.updateOne({ $unset: { [`settings.${key}`]: 1 } })
     }
 
-    async updateOption(
-        this: DocumentType<GuildSettings>, key: string, values?: string[],
+    async updateOption<T>(
+        this: DocumentType<GuildSettings>, key: string, _values?: T[] | T,
         {
             overwrite = false, insertAt = -1, remove: remove = false
         }: {
             overwrite?: boolean, insertAt?: number, remove?: boolean
         } = {}
     ): Promise<ArrayUpdateResult<string> | never> {
+        let values: string[] | undefined = undefined
+        if (Array.isArray(_values)) {
+            values = _values.map(String)
+        } else if (_values !== undefined) {
+            values = [String(_values)]
+        }
+
         key = dotToMongo(key)
         if (overwrite) {
             dlog('MONGO.models.settings', `Overwriting ${key} with [${values}] for guild ${this.guild}`)
