@@ -7,7 +7,8 @@ interface ParseReturnType {
     isCommand: boolean,
     clean: string,
     body: string,
-    tokens: string[]
+    tokens: string[],
+    commandLine: string
 }
 
 export default function parse(message: Message): ParseReturnType {
@@ -30,6 +31,7 @@ export default function parse(message: Message): ParseReturnType {
         isCommand,
         clean,
         body,
-        tokens
+        tokens,
+        commandLine: commandLine || ''
     }
 }

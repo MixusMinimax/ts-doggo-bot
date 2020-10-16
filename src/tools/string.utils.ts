@@ -1,8 +1,14 @@
 import { User } from 'discord.js'
+import { Indexable } from './types'
 
 export function tokenize(s: string | undefined): string[] {
-    return s?.match(/("(\\"|[^"])*?"|(\\\s|\\,|[^ ,])+)(?=\s|,|$)/g)
-        ?.map(e => e.trim().match(/^".*"$/) ? unescape(e) : e)
+    return s?.match(/(\[(\\\]|[^\]])*?\]|"(\\"|[^"])*?"|(\\\s|\\,|[^ ,])+)(?=\s|,|$)/g)
+        ?.map(e => {
+            const res = e.match(/^\[(.*)\]$/)
+            return res ? tokenize(unescape(res[1], { '[': '[', ']': ']' })) : [e]
+        })
+        ?.reduce((a, b) => [...a, ...b])
+        ?.map(e => e.trim().match(/^".*"$/) ? unescape(e.replace(/^"|"$/g, '')) : e)
         ?.map(e => e.replace(/^\\"(.*)\\"$/, '"$1"')) || []
 }
 
@@ -10,8 +16,10 @@ export function escapeQuotes(s: string): string {
     return s.replace(/(\\|")/g, '\\$1')
 }
 
-export function unescape(s: string): string {
-    s = s.replace(/^"|"$/g, '')
+export function unescape(
+    s: string,
+    replacements: Indexable<string> = { n: '\n', '"': '"', '\\': '\\' }
+): string {
     let result: string = ''
     let slash: boolean = false
     for (const c of s.split('')) {
@@ -20,15 +28,16 @@ export function unescape(s: string): string {
         } else if (!slash) {
             result += c
         } else {
-            switch (c) {
-                case 'n':
-                    result += '\n'
+            let replaced = false
+            for (const key in replacements) {
+                if (c === key) {
+                    result += replacements[key]
+                    replaced = true
                     break
-                case '"':
-                    result += '"'
-                    break
-                default:
-                    result += c
+                }
+            }
+            if (!replaced) {
+                result += '\\' + c
             }
             slash = false
         }

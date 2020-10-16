@@ -12,7 +12,8 @@ export class HandlerSettings implements Indexable<any> {
 export interface HandlerContext {
     handlers: Indexable<Handler>,
     handle: (tokens: string[], body: string, message: Message) => Promise<string | undefined>,
-    permissionLevel: { level: number, reason: string }
+    permissionLevel: { level: number, reason: string },
+    commandLine: string
 }
 
 export abstract class Handler {

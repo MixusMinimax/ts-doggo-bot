@@ -2,7 +2,7 @@ import { Message } from 'discord.js'
 import config from '../../config/config.json'
 import { dlog } from '../tools/log'
 import parseMessage from '../tools/messageParser'
-import { reply } from '../tools/string.utils'
+import { reply, tokenize } from '../tools/string.utils'
 import { PrintHelpError } from '../tools/throwingArgparse'
 import { ClearTextError, Indexable, PermissionLevelException } from '../tools/types'
 import { Handler } from './handler.type'
@@ -30,10 +30,16 @@ export const handlers: Indexable<Handler> = {
     settings: new SettingsHandler('settings'),
 }
 
-export async function handle(tokens: string[], body: string, message: Message): Promise<string | undefined> {
+export async function handle(
+    tokens: string[], body: string, message: Message,
+    { commandLine }: { commandLine?: string } = {}
+): Promise<string | undefined> {
 
-    // TODO: Calculate Permission level
-    const permissionLevel = 0
+    if (!commandLine) {
+        commandLine = tokens.join(' ')
+    }
+
+    const permissionLevel = await PermissionHandler.calculatePermissionLevel(message.author, message.guild!)
 
     dlog('HANDLER', `executing: "${config.prefix}${tokens.join(' ')}"`)
 
@@ -53,7 +59,8 @@ export async function handle(tokens: string[], body: string, message: Message): 
                     return (await handler.execute(args[0], body, message, {
                         handlers,
                         handle,
-                        permissionLevel: await PermissionHandler.calculatePermissionLevel(message.author, message.guild!)
+                        permissionLevel,
+                        commandLine
                     })) || undefined
                 } catch (error) {
                     if (debug) {
@@ -100,5 +107,5 @@ export async function handleMessage(message: Message): Promise<string | void> {
 
     if (!parsed.isCommand) return
 
-    return await handle(parsed.tokens, parsed.body, message)
+    return await handle(parsed.tokens, parsed.body, message, { commandLine: parsed.commandLine })
 }
