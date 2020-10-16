@@ -15,6 +15,8 @@ export function checkPermission(required: number, actual: number): void {
 
 export class ClearTextError extends Error { }
 
+export class CommandNotFoundError extends Error { }
+
 export class KeyError extends Error {
     constructor(key: string, message?: string) {
         super(`Invalid key: "${key}"` + message ? `: ${message}` : '')

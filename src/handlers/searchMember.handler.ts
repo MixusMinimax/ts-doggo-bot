@@ -1,6 +1,6 @@
 import { Message } from 'discord.js'
 import { findMembers } from '../tools/discord.utils'
-import { padStart } from '../tools/string.utils'
+import { padStart, reply } from '../tools/string.utils'
 import ThrowingArgumentParser, { NumberRange } from '../tools/throwingArgparse'
 import { Handler, HandlerContext } from './handler.type'
 
@@ -21,15 +21,17 @@ export class SearchMemberHandler extends Handler {
             minCertainty
         })
         if (results.length) {
-            return `> Found \`${results.length}\` Members:\n` +
+            return reply(message,
+                `> Found \`${results.length}\` Members:\n` +
                 results
                     .map(result =>
                         padStart(2, '0')`\`[${Math.round(result.certainty * 100)}%]\` ` +
                         `${mentions ? result.member.toString() : result.member.displayName}`
                     )
                     .join('\n')
+            )
         } else {
-            return `> No Members found!`
+            return reply(message, `> No Members found!`)
         }
     }
 

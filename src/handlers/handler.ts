@@ -4,7 +4,8 @@ import { dlog } from '../tools/log'
 import parseMessage from '../tools/messageParser'
 import { reply, tokenize } from '../tools/string.utils'
 import { PrintHelpError } from '../tools/throwingArgparse'
-import { ClearTextError, Indexable, PermissionLevelException } from '../tools/types'
+import { ClearTextError, CommandNotFoundError, Indexable, PermissionLevelException } from '../tools/types'
+import { AliasHandler } from './alias.handler'
 import { Handler } from './handler.type'
 import { HelpHandler } from './help.handler'
 import { InfoHandler } from './info.handler'
@@ -28,6 +29,7 @@ export const handlers: Indexable<Handler> = {
     permission: new PermissionHandler('permission'),
     search: new SearchMemberHandler('search'),
     settings: new SettingsHandler('settings'),
+    alias: new AliasHandler('alias'),
 }
 
 export async function handle(
@@ -42,58 +44,73 @@ export async function handle(
     const permissionLevel = await PermissionHandler.calculatePermissionLevel(message.author, message.guild!)
 
     dlog('HANDLER', `executing: "${config.prefix}${tokens.join(' ')}"`)
+    {
+        const { replaced, bypassed } = { tokens } = await AliasHandler.apply(tokens, message.guild!)
+        if (replaced || bypassed) {
+            dlog('HANDLER', `replaced with: "${config.prefix}${tokens.join(' ')}"`)
+        }
+    }
 
     const cmd: string | undefined = tokens.shift()
 
     const debug = true
 
     if (cmd) {
-        const handler: Handler = handlers[cmd]
-        if (handler) {
-            try {
+        try {
+            const handler: Handler = handlers[cmd]
+            if (handler) {
                 try {
-                    const args = handler.parser.parseKnownArgs(tokens)
+                    try {
+                        const args = handler.parser.parseKnownArgs(tokens)
 
-                    dlog('HANDLER..args', `${args}`)
+                        dlog('HANDLER..args', `${args}`)
 
-                    return (await handler.execute(args[0], body, message, {
-                        handlers,
-                        handle,
-                        permissionLevel,
-                        commandLine
-                    })) || undefined
-                } catch (error) {
-                    if (debug) {
-                        console.error(error)
+                        return (await handler.execute(args[0], body, message, {
+                            handlers,
+                            handle,
+                            permissionLevel,
+                            commandLine
+                        })) || undefined
+                    } catch (error) {
+                        if (debug) {
+                            console.error(error)
+                        }
+                        throw error
                     }
-                    throw error
+                } catch (error) {
+                    if (error instanceof CommandNotFoundError) {
+                        throw error
+                    }
+                    else if (error instanceof PermissionLevelException) {
+                        return `> ${error.message}`
+                    } else if (error instanceof PrintHelpError) {
+                        return reply(message,
+                            `> Help for the command \`${error.prog}\`:\n`
+                            + '```\n' + error.message + '\n```'
+                        )
+                    } else if (error instanceof PermissionError) {
+                        return reply(
+                            message, `> ${error.message || 'Permission Error:'
+                            } Required: \`${error.required}\`; Actual: \`${error.actual}\``
+                        )
+                    } else if (error instanceof ClearTextError) {
+                        return error.message
+                    } else if (error instanceof Error) {
+                        return reply(message, '```\n' + error.message + '\n```')
+                    } else {
+                        return reply(message, '> Unknown Error')
+                    }
                 }
-            } catch (error) {
-                if (error instanceof PermissionLevelException) {
-                    return `> ${error.message}`
-                } else if (error instanceof PrintHelpError) {
-                    return reply(message.author,
-                        `> Help for the command \`${error.prog}\`:\n`
-                        + '```\n' + error.message + '\n```'
-                    )
-                } else if (error instanceof PermissionError) {
-                    return reply(
-                        message.author, `> ${error.message || 'Permission Error:'
-                        } Required: \`${error.required}\`; Actual: \`${error.actual}\``
-                    )
-                } else if (error instanceof ClearTextError) {
-                    return error.message
-                } else if (error instanceof Error) {
-                    return reply(message.author, '```\n' + error.message + '\n```')
-                } else {
-                    return reply(message.author, '> Unknown Error')
-                }
+            } else {
+                throw new CommandNotFoundError(`${config.prefix}${cmd}`)
             }
-        } else {
-            return `> Command not found: \`${config.prefix}${cmd}\``
+        } catch (error) {
+            if (error instanceof CommandNotFoundError) {
+                return reply(message, `> Command not found: \`${error.message}\``)
+            }
         }
     } else {
-        return '> No command supplied!'
+        return reply(message, '> No command supplied!')
     }
 }
 

@@ -3,7 +3,7 @@ import { Message } from 'discord.js'
 import config from '../../config/config.json'
 import { nameDescription } from '../tools/string.utils'
 import ThrowingArgumentParser from '../tools/throwingArgparse'
-import { Indexable } from '../tools/types'
+import { CommandNotFoundError, Indexable } from '../tools/types'
 
 export class HandlerSettings implements Indexable<any> {
     mentions?: boolean
@@ -66,7 +66,7 @@ export abstract class ParentHandler extends Handler {
             const parsedArgs = handler.parser.parseKnownArgs(tokens)
             return (await handler.execute(parsedArgs[0], body, message, context)) || undefined
         } else {
-            return `> Command not found: \`${this.prog} ${command}\``
+            throw new CommandNotFoundError(`${this.prog} ${command}`)
         }
     }
 

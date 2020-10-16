@@ -44,7 +44,7 @@ export class PermissionHandler extends Handler {
 
         if (level === null && !reset) {
             const permission = await PermissionHandler.calculatePermissionLevel(user, user.guild)
-            return reply(message.author, `> ${_user === null ? 'Your' : `${user.displayName}'s`
+            return reply(message, `> ${_user === null ? 'Your' : `${user.displayName}'s`
                 } permission level is: \`${permission.level
                 }\`, reason: \`${permission.reason}\``)
         }
@@ -56,11 +56,11 @@ export class PermissionHandler extends Handler {
 
         if (reset) {
             await guildSettings.deleteOption(overrideKey)
-            return reply(message.author, `> Permission override for ${user.displayName} removed.`)
+            return reply(message, `> Permission override for ${user.displayName} removed.`)
         }
 
         await guildSettings.updateOption(overrideKey, level)
-        return reply(message.author, `> Permission override for ${user.displayName} set to: \`${level}\``)
+        return reply(message, `> Permission override for ${user.displayName} set to: \`${level}\``)
     }
 
     defineArguments(_parser: ThrowingArgumentParser) {

@@ -2,7 +2,7 @@ import { Const } from 'argparse'
 import { Message } from 'discord.js'
 import { findBestMatch } from 'string-similarity'
 import { GuildSettingsModel } from '../database/models/settings'
-import { arrayToString, nameDescription, padStart, reply } from '../tools/string.utils'
+import { arrayToString, nameDescription, padStart, pager, reply } from '../tools/string.utils'
 import ThrowingArgumentParser, { NumberRange } from '../tools/throwingArgparse'
 import { HandlerContext, ParentHandler, SubHandler } from './handler.type'
 import { assertPermission } from './permission.handler'
@@ -43,47 +43,31 @@ class SettingsListHandler extends SubHandler {
         const required = settings.getSingleOption(PATH_REQUIRED_LEVEL_TO_VIEW, NumberRange(0, 10), DEFAULT_REQUIRED_LEVEL_TO_VIEW)
         assertPermission(context.permissionLevel.level, required)
 
-        page--
-        let keysOnPage: string[] | { key: string, similarity?: number }[] = settings.getNames()
-        const allLength = keysOnPage.length
+        const paged = pager({
+            keys: settings.getNames(),
+            getter: (key: string) => settings.getOption(key, [String]) as string[],
+            page,
+            pageLength,
+            searchTerm,
+            formatter: (
+                key: { key: string, similarity?: number }, value: string[]
+            ) => nameDescription(key.key, arrayToString(value), {
+                tab: 40,
+                delim: ':',
+                maxLength: 128,
+                prefix: key.similarity !== undefined ? padStart(2, '0')`${Math.round(key.similarity * 100)}% ` : undefined
+            })
+        })
 
-        // Sort keys by similarity with searchTerm
-        if (searchTerm.length) {
-            const result = findBestMatch(searchTerm.join(' '), keysOnPage)
-            keysOnPage = result.ratings
-                .map(r => ({ key: r.target, similarity: r.rating }))
-                .sort((a, b) => b.similarity - a.similarity)
-                .slice(page * pageLength, (page + 1) * pageLength)
-        } else {
-            keysOnPage = keysOnPage
-                .slice(page * pageLength, (page + 1) * pageLength)
-                .map(key => ({ key }))
-        }
-        if (!keysOnPage.length) {
-            if (!page) {
-                return reply(message.author, '> No settings for this Guild!')
+        if (!paged.lineCount) {
+            if (page === 1) {
+                return reply(message, '> No settings for this Guild!')
             } else {
-                return reply(message.author, `> No settings for this Guild on page \`${page}\``)
+                return reply(message, `> No settings for this Guild on page \`${page}\``)
             }
         }
-        return reply(
-            message.author,
-            `> Page \`${page + 1
-            }/${Math.ceil(allLength / pageLength)
-            }\`, Results \`${page * pageLength + 1
-            }-${page * pageLength + keysOnPage.length
-            }/${allLength}\`\n\`\`\`${keysOnPage.map(key => {
-                const values = arrayToString(settings.getOption(key.key, [String]) as string[])
-                return nameDescription(key.key, values, {
-                    tab: 32,
-                    delim: ':',
-                    maxLength: 96,
-                    prefix: key.similarity !== undefined ? padStart(2, '0')`${Math.round(key.similarity * 100)}% ` : undefined
-                })
-            }
-            ).join('\n')
-            }\`\`\``
-        )
+
+        return reply(message, paged.pagedMessage)
     }
 
     defineArguments(_parser: ThrowingArgumentParser) {
@@ -149,12 +133,12 @@ class SettingsUpdateOperationHandler extends SubHandler {
 
         if (this.operation === SettingsUpdateOperation.UNSET) {
             await settings.deleteOption(key)
-            return reply(message.author, `> Removed key \`${key}\``)
+            return reply(message, `> Removed key \`${key}\``)
         }
         // Set
         if (this.operation === SettingsUpdateOperation.SET) {
             await settings.updateOption(key, values, { overwrite: true })
-            return reply(message.author, `> Set \`${key}\` to \`${arrayToString(values)}\``)
+            return reply(message, `> Set \`${key}\` to \`${arrayToString(values)}\``)
         }
 
         // Insert
@@ -174,15 +158,15 @@ class SettingsUpdateOperationHandler extends SubHandler {
                     `index \`${index}\`` :
                     'the end'
                 switch (result.addedLines?.length) {
-                    case 0: return reply(message.author, `> No values inserted!`)
-                    case 1: return reply(message.author, `> Inserted one value to \`${key}\` at ${indexText}.`)
-                    default: return reply(message.author, `> Inserted \`${values.length}\` values to \`${key}\` at at ${indexText}.`)
+                    case 0: return reply(message, `> No values inserted!`)
+                    case 1: return reply(message, `> Inserted one value to \`${key}\` at ${indexText}.`)
+                    default: return reply(message, `> Inserted \`${values.length}\` values to \`${key}\` at at ${indexText}.`)
                 }
         }
         // Remove
         if (this.operation === SettingsUpdateOperation.REMOVE) {
             await settings.updateOption(key, values, { remove: true })
-            return reply(message.author, `> Removed the values \`${arrayToString(values)}\` from \`${key}\`!`)
+            return reply(message, `> Removed the values \`${arrayToString(values)}\` from \`${key}\`!`)
         }
 
         throw new Error('Theoretically unreachable code')

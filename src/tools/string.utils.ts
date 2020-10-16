@@ -1,4 +1,5 @@
-import { User } from 'discord.js'
+import { Message, User } from 'discord.js'
+import { findBestMatch, Rating } from 'string-similarity'
 import { Indexable } from './types'
 
 export function tokenize(s: string | undefined): string[] {
@@ -172,7 +173,10 @@ export function nameDescription(name: string, description: string, {
     return result
 }
 
-export function reply(user: User, message: string, args: { delim?: string } = {}): string {
+export function reply(user: User | Message, message: string, args: { delim?: string } = {}): string {
+    if (user instanceof Message) {
+        user = user.author
+    }
     return `<@${user.id}>${args.delim || '\n'}${message}`
 }
 
@@ -192,5 +196,70 @@ export function padStart(maxLength: number, str: string) {
             ret += String(a) + ((vars[i] !== undefined) ? String(vars[i]).padStart(maxLength, str) : '')
         })
         return ret
+    }
+}
+
+export function pager<T>(
+    {
+        keys,
+        getter,
+        formatter,
+        searchTerm = [],
+        /** This starts at one! */
+        page,
+        pageLength
+    }: {
+        keys: string[],
+        getter: (key: string) => T,
+        formatter: (key: { key: string, similarity?: number }, value: T) => string,
+        searchTerm?: string[],
+        page: number,
+        pageLength: number
+    }
+): {
+    lineCount: number,
+    pagedMessage: string
+} {
+    page--
+    let keysOnPage: string[] | { key: string, similarity?: number }[] = keys
+    const allLength = keysOnPage.length
+
+    // Sort keys by similarity with searchTerm
+    if (searchTerm.length) {
+        const result = keysOnPage.length ? findBestMatch(searchTerm.join(' '), keysOnPage) : { ratings: new Array<Rating>() }
+        keysOnPage = result.ratings
+            .map(r => ({ key: r.target, similarity: r.rating }))
+            .sort((a, b) => {
+                const difference = b.similarity - a.similarity
+                if (Math.abs(difference) > 1e-3) {
+                    return difference
+                } else {
+                    return a.key.localeCompare(b.key)
+                }
+            })
+            .slice(page * pageLength, (page + 1) * pageLength)
+    } else {
+        keysOnPage = keysOnPage
+            .sort()
+            .slice(page * pageLength, (page + 1) * pageLength)
+            .map(key => ({ key }))
+    }
+    if (!keysOnPage.length) {
+        return {
+            lineCount: 0,
+            pagedMessage: ''
+        }
+    }
+    return {
+        lineCount: keysOnPage.length,
+        pagedMessage: `> Page \`${page + 1
+            }/${Math.ceil(allLength / pageLength)
+            }\`, Results \`${page * pageLength + 1
+            }-${page * pageLength + keysOnPage.length
+            }/${allLength}\`\n\`\`\`${keysOnPage.map(key => {
+                return formatter(key, getter(key.key))
+            }
+            ).join('\n')
+            }\`\`\``
     }
 }

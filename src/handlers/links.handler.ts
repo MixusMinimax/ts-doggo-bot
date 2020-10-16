@@ -37,9 +37,9 @@ class LinksListHandler extends SubHandler {
         const lines: string[] = (await LinkLists.findOneOrCreate(message.guild.id, message.channel.id)).lines
         dlog('HANDLER.links.list', `${lines.length} Lines for channel ${message.channel.toString()}`)
         if (lines.length === 0) {
-            return reply(message.author, `> No Links for channel <#${message.channel.id}>`)
+            return reply(message, `> No Links for channel <#${message.channel.id}>`)
         } else {
-            return reply(message.author, [
+            return reply(message, [
                 `> Links for channel <#${message.channel.id}>:`,
                 lines.map((line, index) => `\`[${index.toString().padStart(2, '0')}]\` ${line}`).join('\n')
             ].join('\n'))
@@ -66,9 +66,9 @@ class LinksAddHandler extends SubHandler {
         dlog('HANDLER.links.add', `Added ${result.addedLines}`)
 
         if (result?.addedLines?.length) {
-            return reply(message.author, `> Successfully added ${result.addedLines.length} ${singularPlural(result.addedLines.length, 'link')}!`)
+            return reply(message, `> Successfully added ${result.addedLines.length} ${singularPlural(result.addedLines.length, 'link')}!`)
         } else {
-            return reply(message.author, '> No links supplied!')
+            return reply(message, '> No links supplied!')
         }
     }
 
@@ -101,9 +101,9 @@ class LinksRemoveHandler extends SubHandler {
 
         const n = result.removedIndices?.length || 0
         if (result.removedIndices?.length) {
-            return reply(message.author, `> Successfully removed ${singularPlural(n, 'link')} at ${singularPlural(n, 'index', 'indices')} \`${result.removedIndices.join(', ')}\``)
+            return reply(message, `> Successfully removed ${singularPlural(n, 'link')} at ${singularPlural(n, 'index', 'indices')} \`${result.removedIndices.join(', ')}\``)
         } else {
-            return reply(message.author, '> No valid indices supplied!')
+            return reply(message, '> No valid indices supplied!')
         }
     }
 

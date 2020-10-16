@@ -32,7 +32,7 @@ export class HelpHandler extends Handler {
             }
         } else {
             return reply(
-                message.author,
+                message,
                 '```\n' +
                 'Avaiable commands:\n' +
                 Object.keys(context.handlers)
