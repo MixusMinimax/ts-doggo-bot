@@ -25,7 +25,7 @@ export abstract class Handler {
         this.prog = config.prefix + prog
     }
 
-    abstract execute(args: any, body: string, message: Message, context: HandlerContext): Promise<void | string>
+    abstract execute(args: any, body: string, message: Message, context: HandlerContext): Promise<void | string> | void | string
 
     defineArguments(_parser: ThrowingArgumentParser): void { }
 

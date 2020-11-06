@@ -35,7 +35,7 @@ class SettingsListHandler extends SubHandler {
         { page, pageLength, searchTerm }: { page: number, pageLength: number, searchTerm: string[] },
         body: string, message: Message, context: HandlerContext
     ): Promise<string> {
-        if (!message.guild) {
+        if (message.guild === null) {
             throw new Error('No guild')
         }
         const settings = await GuildSettingsModel.findOneOrCreate(message.guild!)

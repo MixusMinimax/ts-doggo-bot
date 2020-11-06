@@ -5,8 +5,8 @@ import parseMessage from '../tools/messageParser'
 import { reply } from '../tools/string.utils'
 import { PrintHelpError } from '../tools/throwingArgparse'
 import { ClearTextError, CommandNotFoundError, Indexable, PermissionLevelException } from '../tools/types'
-import { Handler } from './types'
 import { AliasHandler } from './handlers/alias'
+import { EchoHandler } from './handlers/echo'
 import { HelpHandler } from './handlers/help'
 import { InfoHandler } from './handlers/info'
 import { LinksHandler } from './handlers/links'
@@ -15,8 +15,10 @@ import { PingHandler } from './handlers/ping'
 import { PurgeHandler } from './handlers/purge'
 import { SayHandler } from './handlers/say'
 import { SearchMemberHandler } from './handlers/searchMember'
+import { maybeHandleMessage, SessionsHandler } from './handlers/sessions'
 import { SettingsHandler } from './handlers/settings'
 import { TimeHandler } from './handlers/time'
+import { Handler } from './types'
 
 export const handlers = {
     info: new InfoHandler('info'),
@@ -30,6 +32,9 @@ export const handlers = {
     search: new SearchMemberHandler('search'),
     settings: new SettingsHandler('settings'),
     alias: new AliasHandler('alias'),
+    sessions: new SessionsHandler('sessions'),
+
+    echo: new EchoHandler('echo'),
 }
 
 export async function handle(
@@ -122,7 +127,9 @@ export async function handleMessage(message: Message): Promise<string | void> {
 
     const parsed = parseMessage(message)
 
-    if (!parsed.isCommand) return
+    if (!parsed.isCommand) {
+        return await maybeHandleMessage(message)
+    }
 
     return await handle(parsed.tokens, parsed.body, message, { commandLine: parsed.commandLine })
 }

@@ -46,6 +46,7 @@ client.on('message', async message => {
                 const file = files[Math.floor(Math.random() * files.length)]
                 message.channel.send({ files: [path.join(doggoPath, file)] })
             })
+            return
         }
 
 
@@ -55,6 +56,7 @@ client.on('message', async message => {
                 message.react(emoji)
             else
                 console.error('Emoji "goodboi" not found!')
+            return
         }
         else if (message.content.toLowerCase().includes('bad boi')) {
             const emoji = message.guild.emojis.cache.find(x => x.name === 'angeryboi')
@@ -62,6 +64,7 @@ client.on('message', async message => {
                 message.react(emoji)
             else
                 console.error('Emoji "angeryboi" not found!')
+            return
         }
         else if (message.content.toLowerCase().includes('boi')) {
             const emoji = message.guild.emojis.cache.find(x => x.name === 'boiiiiii')
@@ -69,13 +72,14 @@ client.on('message', async message => {
                 message.react(emoji)
             else
                 console.error('Emoji "boiiiiii" not found!')
+            return
         }
-    } else {
-        const result = await commands.handleMessage(message)
+    }
 
-        if (result) {
-            return message.channel.send(result)
-        }
+    const result = await commands.handleMessage(message)
+
+    if (result) {
+        return message.channel.send(result)
     }
 })
 
