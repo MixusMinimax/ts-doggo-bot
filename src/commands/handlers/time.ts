@@ -1,6 +1,6 @@
 import { Message } from 'discord.js'
 import { padStart, reply } from '../../tools/string.utils'
-import { Handler, HandlerContext } from '../handler.type'
+import { Handler, HandlerContext } from '../types'
 
 export class TimeHandler extends Handler {
 

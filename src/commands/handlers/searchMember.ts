@@ -2,7 +2,7 @@ import { Message } from 'discord.js'
 import { findMembers } from '../../tools/discord.utils'
 import { padStart, reply } from '../../tools/string.utils'
 import ThrowingArgumentParser, { NumberRange } from '../../tools/throwingArgparse'
-import { Handler, HandlerContext } from '../handler.type'
+import { Handler, HandlerContext } from '../types'
 
 export class SearchMemberHandler extends Handler {
 

@@ -5,20 +5,20 @@ import parseMessage from '../tools/messageParser'
 import { reply } from '../tools/string.utils'
 import { PrintHelpError } from '../tools/throwingArgparse'
 import { ClearTextError, CommandNotFoundError, Indexable, PermissionLevelException } from '../tools/types'
-import { Handler } from './handler.type'
-import { AliasHandler } from './handlers/alias.handler'
-import { HelpHandler } from './handlers/help.handler'
-import { InfoHandler } from './handlers/info.handler'
-import { LinksHandler } from './handlers/links.handler'
-import { PermissionError, PermissionHandler } from './handlers/permission.handler'
-import { PingHandler } from './handlers/ping.handler'
-import { PurgeHandler } from './handlers/purge.handler'
-import { SayHandler } from './handlers/say.handler'
-import { SearchMemberHandler } from './handlers/searchMember.handler'
-import { SettingsHandler } from './handlers/settings.handler'
-import { TimeHandler } from './handlers/time.handler'
+import { Handler } from './types'
+import { AliasHandler } from './handlers/alias'
+import { HelpHandler } from './handlers/help'
+import { InfoHandler } from './handlers/info'
+import { LinksHandler } from './handlers/links'
+import { PermissionError, PermissionHandler } from './handlers/permission'
+import { PingHandler } from './handlers/ping'
+import { PurgeHandler } from './handlers/purge'
+import { SayHandler } from './handlers/say'
+import { SearchMemberHandler } from './handlers/searchMember'
+import { SettingsHandler } from './handlers/settings'
+import { TimeHandler } from './handlers/time'
 
-export const handlers: Indexable<Handler> = {
+export const handlers = {
     info: new InfoHandler('info'),
     help: new HelpHandler('help'),
     ping: new PingHandler('ping'),
@@ -57,7 +57,7 @@ export async function handle(
 
     if (cmd) {
         try {
-            const handler: Handler = handlers[cmd]
+            const handler: Handler = (handlers as Indexable<Handler>)[cmd]
             if (handler) {
                 try {
                     try {

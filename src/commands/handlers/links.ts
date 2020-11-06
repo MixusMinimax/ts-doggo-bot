@@ -5,8 +5,8 @@ import { GuildSettingsModel } from '../../database/models/settings'
 import { dlog } from '../../tools/log'
 import { reply, singularPlural } from '../../tools/string.utils'
 import ThrowingArgumentParser, { NumberRange } from '../../tools/throwingArgparse'
-import { HandlerContext, ParentHandler, SubHandler } from '../handler.type'
-import { assertPermission } from './permission.handler'
+import { HandlerContext, ParentHandler, SubHandler } from '../types'
+import { assertPermission } from './permission'
 
 const PATH_REQUIRED_LEVEL_TO_UPDATE = 'permissions.handlers.links.update'
 const DEFAULT_REQUIRED_LEVEL_TO_UPDATE = 5

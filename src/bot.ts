@@ -3,8 +3,8 @@ import fs from 'fs'
 import path from 'path'
 import { exit } from 'process'
 import config from '../config/config.json'
-import * as database from './database/database'
-import * as handler from './command/handler'
+import * as commands from './commands'
+import * as database from './database'
 import { dlog } from './tools/log'
 
 const doggoPath = path.join(__dirname, '../assets/images/doggos')
@@ -71,7 +71,7 @@ client.on('message', async message => {
                 console.error('Emoji "boiiiiii" not found!')
         }
     } else {
-        const result = await handler.handleMessage(message)
+        const result = await commands.handleMessage(message)
 
         if (result) {
             return message.channel.send(result)

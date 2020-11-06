@@ -4,7 +4,7 @@ import config from '../../../config/config.json'
 import { dlog } from '../../tools/log'
 import { nameDescription, reply } from '../../tools/string.utils'
 import ThrowingArgumentParser from '../../tools/throwingArgparse'
-import { Handler, HandlerContext } from '../handler.type'
+import { Handler, HandlerContext } from '../types'
 
 export class HelpHandler extends Handler {
 

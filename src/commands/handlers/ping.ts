@@ -1,5 +1,5 @@
 import { Message } from 'discord.js'
-import { Handler, HandlerContext } from '../handler.type'
+import { Handler, HandlerContext } from '../types'
 
 export class PingHandler extends Handler {
 

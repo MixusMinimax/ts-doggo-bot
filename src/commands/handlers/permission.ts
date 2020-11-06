@@ -4,7 +4,7 @@ import { GuildSettingsModel } from '../../database/models/settings'
 import { tryFindMember } from '../../tools/discord.utils'
 import { reply } from '../../tools/string.utils'
 import ThrowingArgumentParser, { NumberRange } from '../../tools/throwingArgparse'
-import { Handler, HandlerContext } from '../handler.type'
+import { Handler, HandlerContext } from '../types'
 
 /* Settings keys: */
 const MODERATOR_ROLES = 'permissions.moderatorRoles'

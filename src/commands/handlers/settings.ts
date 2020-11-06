@@ -3,8 +3,8 @@ import { Message } from 'discord.js'
 import { GuildSettingsModel } from '../../database/models/settings'
 import { arrayToString, nameDescription, padStart, pager, reply } from '../../tools/string.utils'
 import ThrowingArgumentParser, { NumberRange } from '../../tools/throwingArgparse'
-import { HandlerContext, ParentHandler, SubHandler } from '../handler.type'
-import { assertPermission } from './permission.handler'
+import { HandlerContext, ParentHandler, SubHandler } from '../types'
+import { assertPermission } from './permission'
 
 const PATH_REQUIRED_LEVEL_TO_UPDATE = 'permissions.handlers.settings.update'
 const DEFAULT_REQUIRED_LEVEL_TO_UPDATE = 9
