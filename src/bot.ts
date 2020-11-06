@@ -4,7 +4,7 @@ import path from 'path'
 import { exit } from 'process'
 import config from '../config/config.json'
 import * as database from './database/database'
-import * as handler from './handlers/handler'
+import * as handler from './command/handler'
 import { dlog } from './tools/log'
 
 const doggoPath = path.join(__dirname, '../assets/images/doggos')
@@ -86,9 +86,9 @@ if (token == null) {
     exit(-1)
 }
 
-dlog('BOT.owner', `Owner Tag: {${process.env.OWNER_TAG}}`)
+dlog('BOT.owner', `Owner Tag: {${process.env.OWNER_TAG}}`);
 
-    ; (async () => {
-        await database.connect()
-        await client.login(token)
-    })()
+(async () => {
+    await database.connect()
+    await client.login(token)
+})()

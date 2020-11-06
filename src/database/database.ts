@@ -31,8 +31,6 @@ export const connect = async () => {
             console.error('Error connecting to database')
         })
     }
-
-    return
 }
 
 export const disconnect = async (): Promise<void> => {

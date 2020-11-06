@@ -33,14 +33,14 @@ export function findMembers(
     { maxResults = 10, minCertainty = 0.5 }: { maxResults?: number, minCertainty?: number } = {}
 ): { member: GuildMember, certainty: number }[] {
     dlog('UTILS.discord', `Searching for: "${searchTerm}"`)
-    let res
-    if (res = searchTerm.match(/^<@!?(\d+)>/)) {
+    const res = searchTerm.match(/^<@!?(\d+)>/)
+    if (res) {
         searchTerm = res[1]
         dlog('UTILS.discord', 'mention, id:', searchTerm)
     }
     if (searchTerm.match(/^[0-9]+$/)) {
         dlog('UTILS.discord', 'id')
-        let member = guild.members.cache.find((_member, key) => key === searchTerm)
+        const member = guild.members.cache.find((_member, key) => key === searchTerm)
         if (member) {
             return [{ member, certainty: 1 }]
         } else {
@@ -49,7 +49,7 @@ export function findMembers(
     }
     else if (searchTerm.match(/^\w+#\d{4}$/)) {
         dlog('UTILS.discord', 'tag')
-        let member = guild.members.cache.find((member) => member.user.tag === searchTerm)
+        const member = guild.members.cache.find((_member) => _member.user.tag === searchTerm)
         if (member) {
             return [{ member, certainty: 1 }]
         } else {

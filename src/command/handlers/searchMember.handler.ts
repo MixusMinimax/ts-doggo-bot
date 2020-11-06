@@ -1,8 +1,8 @@
 import { Message } from 'discord.js'
-import { findMembers } from '../tools/discord.utils'
-import { padStart, reply } from '../tools/string.utils'
-import ThrowingArgumentParser, { NumberRange } from '../tools/throwingArgparse'
-import { Handler, HandlerContext } from './handler.type'
+import { findMembers } from '../../tools/discord.utils'
+import { padStart, reply } from '../../tools/string.utils'
+import ThrowingArgumentParser, { NumberRange } from '../../tools/throwingArgparse'
+import { Handler, HandlerContext } from '../handler.type'
 
 export class SearchMemberHandler extends Handler {
 

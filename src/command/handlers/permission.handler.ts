@@ -1,10 +1,10 @@
 import { Const } from 'argparse'
 import { Guild, GuildMember, Message, User } from 'discord.js'
-import { GuildSettingsModel } from '../database/models/settings'
-import { tryFindMember } from '../tools/discord.utils'
-import { reply } from '../tools/string.utils'
-import ThrowingArgumentParser, { NumberRange } from '../tools/throwingArgparse'
-import { Handler, HandlerContext } from './handler.type'
+import { GuildSettingsModel } from '../../database/models/settings'
+import { tryFindMember } from '../../tools/discord.utils'
+import { reply } from '../../tools/string.utils'
+import ThrowingArgumentParser, { NumberRange } from '../../tools/throwingArgparse'
+import { Handler, HandlerContext } from '../handler.type'
 
 /* Settings keys: */
 const MODERATOR_ROLES = 'permissions.moderatorRoles'

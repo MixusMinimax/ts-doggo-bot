@@ -1,7 +1,6 @@
 import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose'
 import { alterArray } from '../../tools/array.utils'
 import { dlog } from '../../tools/log'
-import { onlyUnique } from '../../tools/string.utils'
 
 export interface ILinksUpdateResult {
     links: LinkList,
@@ -25,6 +24,7 @@ export class LinkList {
     @prop({ type: () => [String], default: [] })
     lines!: string[]
 
+    // eslint-disable-next-line @typescript-eslint/no-inferrable-types
     async insertLines(this: DocumentType<LinkList>, lines: string[], at: number = -1): Promise<ILinksUpdateResult> {
         const updateResult = alterArray(this.lines, { add: lines, at })
         this.lines = updateResult.array

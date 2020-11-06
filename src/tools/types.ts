@@ -23,8 +23,8 @@ export class KeyError extends Error {
     }
 }
 
-export class ValueError extends Error {
-    constructor(key: any, message?: string) {
+export class ValueError<T> extends Error {
+    constructor(key: T, message?: string) {
         super(`Invalid value: "${key}"` + message ? `: ${message}` : '')
     }
 }

@@ -1,10 +1,10 @@
 import { Const } from 'argparse'
 import { Message } from 'discord.js'
-import config from '../../config/config.json'
-import { dlog } from '../tools/log'
-import { nameDescription, reply } from '../tools/string.utils'
-import ThrowingArgumentParser from '../tools/throwingArgparse'
-import { Handler, HandlerContext } from './handler.type'
+import config from '../../../config/config.json'
+import { dlog } from '../../tools/log'
+import { nameDescription, reply } from '../../tools/string.utils'
+import ThrowingArgumentParser from '../../tools/throwingArgparse'
+import { Handler, HandlerContext } from '../handler.type'
 
 export class HelpHandler extends Handler {
 

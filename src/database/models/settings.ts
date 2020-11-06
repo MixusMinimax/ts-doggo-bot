@@ -1,9 +1,9 @@
-import { DocumentType, getModelForClass, modelOptions, prop } from "@typegoose/typegoose"
-import { Guild } from "discord.js"
-import { alterArray, ArrayUpdateResult } from "../../tools/array.utils"
-import { dlog } from "../../tools/log"
-import { arrayToString } from "../../tools/string.utils"
-import { Indexable } from "../../tools/types"
+import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose'
+import { Guild } from 'discord.js'
+import { alterArray, ArrayUpdateResult } from '../../tools/array.utils'
+import { dlog } from '../../tools/log'
+import { arrayToString } from '../../tools/string.utils'
+import { Indexable } from '../../tools/types'
 
 function dotToMongo(s: string): string {
     return s.replace(/\./g, ':')
@@ -20,7 +20,7 @@ function mongoToDot(s: string): string {
         id: false,
     }
 })
-export class GuildSettings implements Indexable<any> {
+export class GuildSettings {
     @prop({ required: true, unique: true })
     guild!: string
 
@@ -79,7 +79,7 @@ export class GuildSettings implements Indexable<any> {
         }
     }
 
-    async deleteOption(this: DocumentType<GuildSettings>, key: string) {
+    async deleteOption(this: DocumentType<GuildSettings>, key: string): Promise<DocumentType<GuildSettings>> {
         key = dotToMongo(key)
         dlog('MONGO.models.settings', `Unsetting ${key} for guild ${this.guild}`)
         return await this.updateOne({ $unset: { [`settings.${key}`]: 1 } })
@@ -93,7 +93,7 @@ export class GuildSettings implements Indexable<any> {
             overwrite?: boolean, insertAt?: number, remove?: boolean
         } = {}
     ): Promise<ArrayUpdateResult<string> | never> {
-        let values: string[] | undefined = undefined
+        let values: string[] | undefined
         if (Array.isArray(_values)) {
             values = _values.map(String)
         } else if (_values !== undefined) {

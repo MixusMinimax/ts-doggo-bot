@@ -41,8 +41,8 @@ export default class ThrowingArgumentParser extends ArgumentParser {
 export function NumberRange(min?: number, max?: number, allowNaN: boolean = false): (x: string) => number | never {
     return function Number(_x) {
         let x = +_x
-        let r
-        if (r = _x.match(/^(\d+)%$/)) {
+        const r = _x.match(/^(\d+)%$/)
+        if (r) {
             x = +(r[1]) / 100
         }
         if (isNaN(x) && !allowNaN) {

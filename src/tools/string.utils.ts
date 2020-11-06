@@ -191,7 +191,7 @@ export function onlyUnique<T>(value: T, index: number, self: T[]) {
 export function padStart(maxLength: number, str: string) {
     return (template: TemplateStringsArray, ...vars: any[]) => {
         let ret = ''
-        var arr = [...template]
+        const arr = [...template]
         arr.forEach((a, i) => {
             ret += String(a) + ((vars[i] !== undefined) ? String(vars[i]).padStart(maxLength, str) : '')
         })

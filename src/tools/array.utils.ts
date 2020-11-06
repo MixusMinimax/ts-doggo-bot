@@ -1,4 +1,4 @@
-import { onlyUnique } from "./string.utils"
+import { onlyUnique } from './string.utils'
 
 export type ArrayUpdate<T> = ArrayInsert<T> | ArrayRemove
 

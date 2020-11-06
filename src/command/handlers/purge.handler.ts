@@ -1,8 +1,8 @@
 import { Const } from 'argparse'
 import { Message } from 'discord.js'
-import { GuildSettingsModel } from '../database/models/settings'
-import ThrowingArgumentParser, { NumberRange } from '../tools/throwingArgparse'
-import { Handler, HandlerContext } from './handler.type'
+import { GuildSettingsModel } from '../../database/models/settings'
+import ThrowingArgumentParser, { NumberRange } from '../../tools/throwingArgparse'
+import { Handler, HandlerContext } from '../handler.type'
 import { assertPermission } from './permission.handler'
 
 const PATH_REQUIRED_LEVEL = 'permissions.handlers.purge'

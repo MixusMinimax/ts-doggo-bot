@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js'
-import config from '../../config/config.json'
-import package_json from '../../package.json'
-import { Handler, HandlerContext } from './handler.type'
+import config from '../../../config/config.json'
+import package_json from '../../../package.json'
+import { Handler, HandlerContext } from '../handler.type'
 
 export class InfoHandler extends Handler {
 

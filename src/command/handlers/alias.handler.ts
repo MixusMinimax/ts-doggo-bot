@@ -1,9 +1,9 @@
-import { Const } from "argparse"
-import { Guild, Message } from "discord.js"
-import { GuildSettingsModel } from "../database/models/settings"
-import { pager, nameDescription, arrayToString, padStart, reply } from "../tools/string.utils"
-import ThrowingArgumentParser, { ArgumentParseError, NumberRange } from "../tools/throwingArgparse"
-import { Handler, HandlerContext } from "./handler.type"
+import { Const } from 'argparse'
+import { Guild, Message } from 'discord.js'
+import { GuildSettingsModel } from '../../database/models/settings'
+import { arrayToString, nameDescription, pager, reply } from '../../tools/string.utils'
+import ThrowingArgumentParser, { ArgumentParseError, NumberRange } from '../../tools/throwingArgparse'
+import { Handler, HandlerContext } from '../handler.type'
 
 const ALIAS_BYPASS = 'command'
 const ALIAS_BLACKLIST = ['alias', ALIAS_BYPASS]
@@ -19,7 +19,7 @@ export class AliasHandler extends Handler {
         }: {
             name?: string, value: string[], page: number, pageLength: number, remove: boolean
         },
-        body: string, message: Message, context: HandlerContext
+        body: string, message: Message, _context: HandlerContext
     ): Promise<string> {
         const settings = await GuildSettingsModel.findOneOrCreate(message.guild!)
         if (remove) {
@@ -44,8 +44,8 @@ export class AliasHandler extends Handler {
                 pageLength,
                 searchTerm: [`${ALIAS_PREFIX}.${aliasName}`],
                 formatter: (
-                    key: { key: string, similarity?: number }, value: string[]
-                ) => nameDescription(key.key.substring(ALIAS_PREFIX.length + 1), `"${value.join(' ')}"`, {
+                    key: { key: string, similarity?: number }, _value: string[]
+                ) => nameDescription(key.key.substring(ALIAS_PREFIX.length + 1), `"${_value.join(' ')}"`, {
                     tab: 40,
                     delim: ':',
                     maxLength: 128,

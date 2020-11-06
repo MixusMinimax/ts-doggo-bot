@@ -1,7 +1,7 @@
 import { mongoose } from '@typegoose/typegoose'
 import { expect } from 'chai'
 import * as database from '../src/database/database'
-import { LinkList, LinkLists } from '../src/database/models/links'
+import { LinkLists } from '../src/database/models/links'
 
 async function getLinksFresh() {
     delete mongoose.models.LinkLists
@@ -41,7 +41,7 @@ describe('LinkLists', function () {
         })
 
         it('should append to the end', async function () {
-            var links = await getLinksFresh()
+            let links = await getLinksFresh()
             const added: string[] = ['Line8', 'Line9']
             const result = await links.insertLines(added, -1)
             links = await getLinksFresh()
@@ -50,7 +50,7 @@ describe('LinkLists', function () {
         })
 
         it('should prepend at the beginning', async function () {
-            var links = await getLinksFresh()
+            let links = await getLinksFresh()
             const added: string[] = ['Line0', 'Line1']
             const result = await links.insertLines(added, 0)
             links = await getLinksFresh()
@@ -59,7 +59,7 @@ describe('LinkLists', function () {
         })
 
         it('should insert at index', async function () {
-            var links = await getLinksFresh()
+            let links = await getLinksFresh()
             const added: string[] = ['Line4', 'Line5', 'Line6']
             const at = 2
             const result = await links.insertLines(added, at)
@@ -79,7 +79,7 @@ describe('LinkLists', function () {
         })
 
         it('should remove all', async function () {
-            var links = await getLinksFresh()
+            let links = await getLinksFresh()
             const result = await links.removeLines([...initial.keys()])
             links = await getLinksFresh()
             expect(links).to.have.property('lines').which.eqls([])
@@ -87,7 +87,7 @@ describe('LinkLists', function () {
         })
 
         it('should remove even', async function () {
-            var links = await getLinksFresh()
+            let links = await getLinksFresh()
             const result = await links.removeLines([...initial.keys()].map(i => 2 * i)) // Purposefully more indices that are out of range
             links = await getLinksFresh()
             expect(links).to.have.property('lines').which.eqls(initial.filter((_e, i) => i & 1))
