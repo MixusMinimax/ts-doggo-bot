@@ -30,7 +30,11 @@ export function findMember(guild: Guild, searchTerm: string): { member: GuildMem
 
 export function findMembers(
     guild: Guild, searchTerm: string,
-    { maxResults = 10, minCertainty = 0.5 }: { maxResults?: number, minCertainty?: number } = {}
+    {
+        maxResults = 10, minCertainty = 0.5, useDisplayName = true
+    }: {
+        maxResults?: number, minCertainty?: number, useDisplayName?: boolean
+    } = {}
 ): { member: GuildMember, certainty: number }[] {
     dlog('UTILS.discord', `Searching for: "${searchTerm}"`)
     const res = searchTerm.match(/^<@!?(\d+)>/)
@@ -55,6 +59,9 @@ export function findMembers(
         } else {
             return []
         }
+    }
+    if (!useDisplayName) {
+        return []
     }
     return stringSimilarity
         .findBestMatch(searchTerm, guild.members.cache.map(e => e.displayName))

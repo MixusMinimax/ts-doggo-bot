@@ -1,8 +1,10 @@
 import { types } from '@typegoose/typegoose'
 import { Const } from 'argparse'
 import { Guild, GuildMember, Message, TextChannel, User } from 'discord.js'
+import { join } from 'path'
 import { isIdentifier, Type, TypeOfExpression } from 'typescript'
 import { GuildSettingsModel } from '../../database/models/settings'
+import { findMembers, tryFindMember } from '../../tools/discord.utils'
 import { dlog } from '../../tools/log'
 import { arrayToString, nameDescription, padStart, pager, reply } from '../../tools/string.utils'
 import ThrowingArgumentParser, { NumberRange } from '../../tools/throwingArgparse'
@@ -16,22 +18,22 @@ const DEFAULT_REQUIRED_LEVEL_TO_VIEW = 5
 export class SessionsHandler extends ParentHandler {
 
     description = 'Manage running sessions'
-    defaultSubCommand = 'list'
+    defaultSubCommand = 'show'
 
     constructor(prog: string) {
         super(prog)
         this.subHandlers = {
-            list: new SessionsListHandler(prog, 'list')
+            show: new SessionsShowHandler(prog, 'show')
         }
     }
 }
 
-class SessionsListHandler extends SubHandler {
+class SessionsShowHandler extends SubHandler {
 
     description = 'List running sessions'
 
     async execute(
-        { page, pageLength }: { page: number, pageLength: number },
+        { page, pageLength, searchTerm }: { page: number, pageLength: number, searchTerm?: string },
         body: string, message: Message, context: HandlerContext
     ): Promise<string> {
         if (message.guild === null) {
@@ -41,9 +43,9 @@ class SessionsListHandler extends SubHandler {
         const required = settings.getSingleOption(PATH_REQUIRED_LEVEL_TO_VIEW, NumberRange(0, 10), DEFAULT_REQUIRED_LEVEL_TO_VIEW)
         assertPermission(context.permissionLevel.level, required)
 
-        const ids = [...runningSessions.keys()].map(String)
+        let ids = [...runningSessions.keys()].map(String)
 
-        const paged = pager({
+        const _pager = () => pager({
             keys: ids,
             getter: (key) => runningSessions.get(BigInt(key))!,
             page,
@@ -58,6 +60,20 @@ class SessionsListHandler extends SubHandler {
                 maxLines: 8
             })
         })
+
+        let paged: ReturnType<typeof _pager>
+
+        if (searchTerm) {
+            const members = findMembers(message.guild, searchTerm, { useDisplayName: false })
+            if (members.length) {
+                const { member } = members[0]
+                ids = [...joinedSessions.entries()]
+                    .filter(e => e[0].endsWith(member.id))
+                    .map(e => String(e[1]))
+            }
+        }
+
+        paged = _pager()
 
         if (!paged.lineCount) {
             if (page === 1) {
@@ -81,6 +97,10 @@ class SessionsListHandler extends SubHandler {
             type: NumberRange(1, 64),
             dest: 'pageLength',
             help: 'How many sessions per page to show.'
+        })
+        _parser.addArgument('searchTerm', {
+            nargs: Const.OPTIONAL,
+            help: 'Search for names, users, or give more information for an id'
         })
     }
 }

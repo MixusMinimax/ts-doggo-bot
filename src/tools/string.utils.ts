@@ -58,7 +58,7 @@ export function wordWrap(s: string, {
     max?: number, indent?: number, startOffset?: number, maxLines?: number
 }): string {
 
-    const words = s.match(/(?:\s+|^)(\S+|\S*$)/g) || []
+    const words = s.match(/\n|(?:\s+|^)(\S+|\S*$)/g) || []
     let result = ''
     let offset = startOffset
     const newLine = '\n' + ' '.repeat(indent)
@@ -67,7 +67,12 @@ export function wordWrap(s: string, {
     outer: for (const word of words) {
         const remaining = max - offset
         while (true) {
-            if (word.trimRight().length <= remaining) {
+            if (word === '\n') {
+                if (offset > 0) {
+                    result += '\n'
+                    offset = 0
+                }
+            } else if (word.trimRight().length <= remaining) {
                 result += word
                 offset += word.length
                 break
