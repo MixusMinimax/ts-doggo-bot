@@ -72,6 +72,7 @@ export function wordWrap(s: string, {
                     result += '\n'
                     offset = 0
                 }
+                break
             } else if (word.trimRight().length <= remaining) {
                 result += word
                 offset += word.length

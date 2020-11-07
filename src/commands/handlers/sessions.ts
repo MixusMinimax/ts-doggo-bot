@@ -1,6 +1,6 @@
 import { types } from '@typegoose/typegoose'
 import { Const } from 'argparse'
-import { Guild, GuildMember, Message, TextChannel, User } from 'discord.js'
+import { Guild, GuildMember, Message, MessageEmbed, TextChannel, User } from 'discord.js'
 import { join } from 'path'
 import { isIdentifier, Type, TypeOfExpression } from 'typescript'
 import { GuildSettingsModel } from '../../database/models/settings'
@@ -35,7 +35,7 @@ class SessionsShowHandler extends SubHandler {
     async execute(
         { page, pageLength, searchTerm }: { page: number, pageLength: number, searchTerm?: string },
         body: string, message: Message, context: HandlerContext
-    ): Promise<string> {
+    ): Promise<string | void> {
         if (message.guild === null) {
             throw new Error('No guild')
         }
@@ -67,9 +67,42 @@ class SessionsShowHandler extends SubHandler {
             const members = findMembers(message.guild, searchTerm, { useDisplayName: false })
             if (members.length) {
                 const { member } = members[0]
-                ids = [...joinedSessions.entries()]
-                    .filter(e => e[0].endsWith(member.id))
-                    .map(e => String(e[1]))
+                ids = [...joinedSessions.keys()]
+                    .filter(e => e.endsWith(member.id))
+
+                let x
+                paged = pager({
+                    keys: ids,
+                    getter: (key) => runningSessions.get(joinedSessions.get(key)!)!,
+                    page,
+                    pageLength,
+                    formatter: (
+                        key: { key: string, similarity?: number }, value: Session
+                    ) => nameDescription(
+                        (
+                            x = key.key.match(/^(?<guild>.+)\.(?<channel>.+)\..+$/),
+                            `Guild: ${x?.groups?.guild!}, Channel: ${x?.groups?.channel!}`
+                        ),
+                        `${value.name} (${value.id})\n`,
+                        {
+                            tab: 4,
+                            delim: ':',
+                            maxLength: 128,
+                            prefix: '',
+                            maxLines: 8
+                        }
+                    )
+                })
+
+                if (!paged.lineCount) {
+                    if (page === 1) {
+                        return reply(message, '> No running sessions for this Guild!')
+                    } else {
+                        return reply(message, `> No running sessions for this Guild on page \`${page}\``)
+                    }
+                }
+
+                return reply(message, paged.pagedMessage)
             }
         }
 
@@ -276,7 +309,6 @@ export async function maybeHandleMessage(message: Message) {
     const identifier = identifierFromMessage(message)
     const key = joinKeyToString(identifier)
     const id = joinedSessions.get(key)
-    console.log({ id, key })
     if (id !== undefined) {
         const session = runningSessions.get(id)
         if (session !== undefined) {
