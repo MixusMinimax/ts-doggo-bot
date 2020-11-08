@@ -19,6 +19,7 @@ import { maybeHandleMessage, SessionsHandler } from './handlers/sessions'
 import { SettingsHandler } from './handlers/settings'
 import { TimeHandler } from './handlers/time'
 import { Handler } from './types'
+import * as nonCommands from '../non-commands'
 
 export const handlers = {
     info: new InfoHandler('info'),
@@ -128,7 +129,11 @@ export async function handleMessage(message: Message): Promise<string | void> {
     const parsed = parseMessage(message)
 
     if (!parsed.isCommand) {
-        return await maybeHandleMessage(message)
+        const didExecute = await maybeHandleMessage(message)
+        if (!didExecute) {
+            await nonCommands.handleMessage(message)
+        }
+        return
     }
 
     return await handle(parsed.tokens, parsed.body, message, { commandLine: parsed.commandLine })

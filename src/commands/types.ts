@@ -3,7 +3,7 @@ import { Message } from 'discord.js'
 import config from '../../config/config.json'
 import { nameDescription } from '../tools/string.utils'
 import ThrowingArgumentParser from '../tools/throwingArgparse'
-import { CommandNotFoundError, Indexable } from '../tools/types'
+import { CommandNotFoundError, Indexable, PromiseOrNot } from '../tools/types'
 
 export class HandlerSettings implements Indexable<any> {
     mentions?: boolean
@@ -25,7 +25,7 @@ export abstract class Handler {
         this.prog = config.prefix + prog
     }
 
-    abstract execute(args: any, body: string, message: Message, context: HandlerContext): Promise<void | string> | void | string
+    abstract execute(args: any, body: string, message: Message, context: HandlerContext): PromiseOrNot<void | string>
 
     defineArguments(_parser: ThrowingArgumentParser): void { }
 

@@ -9,5 +9,6 @@
             "url": "https://barmetler.com"
         },
         "description": "A simple bot with not much unctionality (yet!)"
-    }
+    },
+    "doggos": "assets/images/doggos"
 }

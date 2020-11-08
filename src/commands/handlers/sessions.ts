@@ -8,9 +8,9 @@ import { findMembers, tryFindMember } from '../../tools/discord.utils'
 import { dlog } from '../../tools/log'
 import { arrayToString, nameDescription, padStart, pager, reply } from '../../tools/string.utils'
 import ThrowingArgumentParser, { NumberRange } from '../../tools/throwingArgparse'
-import { Indexable } from '../../tools/types'
+import { checkPermission, FilterType, Indexable, PromiseOrNot } from '../../tools/types'
 import { HandlerContext, ParentHandler, SubHandler } from '../types'
-import { assertPermission } from './permission'
+import { assertPermission, PermissionHandler } from './permission'
 
 const PATH_REQUIRED_LEVEL_TO_VIEW = 'permissions.handlers.sessions.view'
 const DEFAULT_REQUIRED_LEVEL_TO_VIEW = 5
@@ -140,46 +140,69 @@ class SessionsShowHandler extends SubHandler {
 
 type TransitionFunctionType = (this: Session, state: string, message: Message) => Promise<string>
 
+type SessionArgs = {
+    id: BigInt,
+    initialState: string,
+    allowedUsers?: Set<string>,
+    allowedUsersFilterType?: FilterType,
+    allowedGuilds?: Set<string>,
+    allowedGuildsFilterType?: FilterType,
+    requiredPermissionLevel?: number,
+
+    transition: TransitionFunctionType,
+    onStart?: (this: Session, message: Message) => PromiseOrNot<void>,
+    onCancel?: (this: Session, message: Message) => PromiseOrNot<void>,
+    onJoin?: (this: Session, message: Message) => PromiseOrNot<void>,
+    onLeave?: (this: Session, message: Message) => PromiseOrNot<void>,
+
+    name: string,
+    description: string,
+}
+
 class Session {
     readonly id: BigInt
     readonly transition: TransitionFunctionType
+    readonly onStart?: (this: Session, message: Message) => Promise<void> | void
     readonly onCancel?: (this: Session, message: Message) => Promise<void> | void
+    readonly onJoin?: (this: Session, message: Message) => Promise<void> | void
     readonly onLeave?: (this: Session, message: Message) => Promise<void> | void
     private state: string
+    readonly allowedUsers: Set<string>
+    readonly allowedUsersFilterType: FilterType
     readonly allowedGuilds: Set<string>
-    readonly allowedGuildsFilter: 'whitelist' | 'blacklist'
+    readonly allowedGuildsFilterType: FilterType
     readonly joinedUsers: Map<string, JoinIdentifier>
+    readonly requiredPermissionLevel: number
 
     name: string
     description: string
 
     constructor(
-        args: {
-            id: BigInt,
-            transition: TransitionFunctionType,
-            initialState: string,
-            allowedGuilds?: Set<string>,
-            allowedGuildsFilter?: 'whitelist' | 'blacklist',
-            onCancel?: (this: Session, message: Message) => Promise<void> | void,
-            onLeave?: (this: Session, message: Message) => Promise<void> | void,
-
-            name: string,
-            description: string,
-        }
+        args: SessionArgs
     ) {
         this.id = args.id
         this.transition = args.transition
         this.state = args.initialState
+        if (args.allowedUsers === undefined) {
+            this.allowedUsers = new Set()
+            this.allowedUsersFilterType = args.allowedUsersFilterType || 'blacklist'
+        } else {
+            this.allowedUsers = args.allowedUsers
+            this.allowedUsersFilterType = args.allowedUsersFilterType || 'whitelist'
+        }
         if (args.allowedGuilds === undefined) {
             this.allowedGuilds = new Set()
-            this.allowedGuildsFilter = args.allowedGuildsFilter || 'blacklist'
+            this.allowedGuildsFilterType = args.allowedGuildsFilterType || 'blacklist'
         } else {
             this.allowedGuilds = args.allowedGuilds
-            this.allowedGuildsFilter = args.allowedGuildsFilter || 'whitelist'
+            this.allowedGuildsFilterType = args.allowedGuildsFilterType || 'whitelist'
         }
         this.joinedUsers = new Map()
+        this.onStart = args.onStart
         this.onCancel = args.onCancel
+        this.onJoin = args.onJoin
         this.onLeave = args.onLeave
+        this.requiredPermissionLevel = args.requiredPermissionLevel || 0
 
         this.name = args.name
         this.description = args.description
@@ -193,16 +216,18 @@ class Session {
         }
         if (content === 'leave') {
             leaveSession(identifierFromMessage(message), this.id)
-            await this.onLeave?.(message)
             return
         }
         this.state = await this.transition(this.state, message)
     }
 
     private async stop() {
-        [...this.joinedUsers.values()].forEach(identifer => {
+        [...this.joinedUsers.values()].forEach(identifier => {
             try {
-                leaveSession(identifer, this.id)
+                leaveSession(
+                    (identifier = { ...identifier }, identifier.message = undefined, identifier),
+                    this.id
+                )
             } catch (e) {
                 dlog('SESSIONS.stop', e)
             }
@@ -230,37 +255,24 @@ const joinedSessions = new Map<string, BigInt>()
 interface JoinIdentifier {
     guild: Guild,
     channel: TextChannel,
-    user: User
+    user: User,
+    message?: Message
 }
 
-export function createSession(
-    guild: Guild,
-    args: {
-        transition: TransitionFunctionType,
-        initialState: string,
-        allowedGuilds?: Set<string>,
-        allowedGuildsFilter?: 'whitelist' | 'blacklist',
-        onCancel?: (this: Session, message: Message) => Promise<void> | void,
-        onLeave?: (this: Session, message: Message) => Promise<void> | void,
-
-        name: string,
-        description: string,
-    }
+export async function createSession(
+    message: Message,
+    args: Omit<SessionArgs, 'id'>
 ) {
     lastId++
     const newSession = new Session({
+        ...args,
         id: lastId,
-        transition: args.transition,
-        initialState: args.initialState,
-        allowedGuilds: args.allowedGuilds || new Set(guild.id),
-        allowedGuildsFilter: args.allowedGuildsFilter,
-        onCancel: args.onCancel,
-        onLeave: args.onLeave,
-
-        name: args.name,
-        description: args.description,
+        allowedGuilds: args.allowedGuilds || new Set([message.guild!.id]),
     })
     runningSessions.set(lastId, newSession)
+
+    await newSession.onStart?.(message)
+
     return newSession.id
 }
 
@@ -271,7 +283,8 @@ export function identifierFromMessage(message: Message): JoinIdentifier {
     return {
         guild: message.guild,
         channel: message.channel as TextChannel,
-        user: message.author
+        user: message.author,
+        message
     }
 }
 
@@ -279,7 +292,8 @@ export function joinKeyToString(identifier: JoinIdentifier) {
     return `${identifier.guild.id}.${identifier.channel.id}.${identifier.user.id}`
 }
 
-export function joinSession(identifier: JoinIdentifier, id: BigInt) {
+export async function joinSession(message: Message, id: BigInt, permissionLevel: number) {
+    const identifier = identifierFromMessage(message)
     if (!runningSessions.has(id)) {
         throw new Error(`Invalid ID: ${id}`)
     }
@@ -287,12 +301,31 @@ export function joinSession(identifier: JoinIdentifier, id: BigInt) {
     if (joinedSessions.has(key)) {
         throw new Error(`Already in Session ${joinedSessions.get(key)}`)
     }
-    joinedSessions.set(key, id)
     const session = runningSessions.get(id)!
+
+    checkPermission(
+        session.requiredPermissionLevel,
+        permissionLevel
+    )
+
+    if (
+        (session.allowedUsersFilterType === 'whitelist' &&
+            !session.allowedUsers.has(identifier.user.id)) ||
+        (session.allowedUsersFilterType === 'blacklist' &&
+            session.allowedUsers.has(identifier.user.id))
+    ) {
+        throw new Error(`Not allowed to join this Session!`)
+    }
+
+
+    joinedSessions.set(key, id)
+    if (identifier.message) {
+        await session.onJoin?.(identifier.message)
+    }
     session.joinedUsers.set(key, identifier)
 }
 
-export function leaveSession(identifier: JoinIdentifier, id: BigInt) {
+export async function leaveSession(identifier: JoinIdentifier, id: BigInt) {
     if (!runningSessions.has(id)) {
         throw new Error(`Invalid ID: ${id}`)
     }
@@ -303,8 +336,15 @@ export function leaveSession(identifier: JoinIdentifier, id: BigInt) {
     joinedSessions.delete(key)
     const session = runningSessions.get(id)!
     session.joinedUsers.delete(key)
+    if (identifier.message) {
+        await session.onLeave?.(identifier.message)
+    }
+    session.joinedUsers.delete(key)
 }
 
+/**
+ * @returns true if further processing should be stopped
+ */
 export async function maybeHandleMessage(message: Message) {
     const identifier = identifierFromMessage(message)
     const key = joinKeyToString(identifier)
@@ -313,6 +353,8 @@ export async function maybeHandleMessage(message: Message) {
         const session = runningSessions.get(id)
         if (session !== undefined) {
             await session.handleMessage(message)
+            return true
         }
     }
+    return false
 }

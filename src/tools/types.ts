@@ -8,6 +8,11 @@ export class PermissionLevelException extends Error {
     }
 }
 
+/**
+ * @param required 0-10
+ * @param actual 0-10
+ * @throws PermissionLevelException if `required` > `actual`
+ */
 export function checkPermission(required: number, actual: number): void {
     if (required > actual)
         throw new PermissionLevelException(required, actual)
@@ -28,3 +33,7 @@ export class ValueError<T> extends Error {
         super(`Invalid value: "${key}"` + message ? `: ${message}` : '')
     }
 }
+
+export type PromiseOrNot<T> = Promise<T> | T
+
+export type FilterType = 'whitelist' | 'blacklist'

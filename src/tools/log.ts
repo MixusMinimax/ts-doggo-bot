@@ -35,6 +35,12 @@ const filter: IFilter = {
         },
         help: true,
     },
+    NON_HANDLER: {
+        default: true,
+        execute: false,
+        enabled: false,
+        shouldStop: false,
+    },
     UTILS: {
         default: false,
         discord: true,

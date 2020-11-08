@@ -54,3 +54,33 @@ export function NumberRange(min?: number, max?: number, allowNaN: boolean = fals
         return x
     }
 }
+
+export function BooleanExact({
+    caseSensitive = false,
+    trues = ['true'],
+    falses = ['false']
+}: {
+    caseSensitive?: boolean,
+    trues?: string[],
+    falses?: string[]
+} = {}) {
+    if (trues.filter(e => falses.includes(e)).length) {
+        throw new Error('trues and falses mustn\'t intersect!')
+    }
+    if (!caseSensitive) {
+        trues = trues.map(e => e.toLowerCase())
+        falses = falses.map(e => e.toLowerCase())
+    }
+    return function Boolean(_x: string) {
+        if (!caseSensitive) {
+            _x = _x.toLowerCase()
+        }
+        if (trues.includes(_x)) {
+            return true
+        }
+        if (falses.includes(_x)) {
+            return false
+        }
+        throw new ArgumentParseError(`Choose from [${[...trues, ...falses].join(', ')}]`)
+    }
+}

@@ -1,14 +1,9 @@
 import { Client } from 'discord.js'
-import fs from 'fs'
-import path from 'path'
 import { exit } from 'process'
 import config from '../config/config.json'
 import * as commands from './commands'
 import * as database from './database'
 import { dlog } from './tools/log'
-
-const doggoPath = path.join(__dirname, '../assets/images/doggos')
-const mods = ['Administrator', 'Admin', 'Moderator']
 
 const client = new Client()
 
@@ -33,48 +28,6 @@ client.on('message', async message => {
     // Ignore other bots
     if (message.author.bot) return
     if (message.guild == null) return
-
-    // Non-commands
-    if (message.content.indexOf(config.prefix) !== 0) {
-
-        if (message.content.toLowerCase().includes('doggo')) {
-            fs.readdir(doggoPath, function (err, files) {
-                // handling error
-                if (err) {
-                    return console.error('Unable to scan directory: ' + err)
-                }
-                const file = files[Math.floor(Math.random() * files.length)]
-                message.channel.send({ files: [path.join(doggoPath, file)] })
-            })
-            return
-        }
-
-
-        if (message.content.toLowerCase().includes('good boi')) {
-            const emoji = message.guild.emojis.cache.find(x => x.name === 'goodboi')
-            if (emoji != null)
-                message.react(emoji)
-            else
-                console.error('Emoji "goodboi" not found!')
-            return
-        }
-        else if (message.content.toLowerCase().includes('bad boi')) {
-            const emoji = message.guild.emojis.cache.find(x => x.name === 'angeryboi')
-            if (emoji != null)
-                message.react(emoji)
-            else
-                console.error('Emoji "angeryboi" not found!')
-            return
-        }
-        else if (message.content.toLowerCase().includes('boi')) {
-            const emoji = message.guild.emojis.cache.find(x => x.name === 'boiiiiii')
-            if (emoji != null)
-                message.react(emoji)
-            else
-                console.error('Emoji "boiiiiii" not found!')
-            return
-        }
-    }
 
     const result = await commands.handleMessage(message)
 
