@@ -21,13 +21,11 @@ export class RandomImage extends NonHandler {
 
     protected async _execute(message: Message, _context: NonHandlerContext): Promise<boolean> {
 
-        if (message.content.toLowerCase().includes(this.word)) {
-
+        if (message.content.toLowerCase().match(new RegExp('(?<=^|\\W)' + this.word + '(?=$|\\W)'))) {
             const client = new Client({
                 client_id: process.env.IMGUR_CLIENT_ID,
                 client_secret: process.env.IMGUR_CLIENT_SECRET
             })
-
             const albumId = (config.imgur as Indexable<string>)[this.word]
             if (!albumId) {
                 throw new Error('No albumID')
