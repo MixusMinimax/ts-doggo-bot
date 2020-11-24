@@ -9,6 +9,7 @@ const nonHandlers: NonHandler[] = [
     new GlobalEnableChecker(),
     new Reactions(),
     new RandomImage('doggo'),
+    new RandomImage('catto'),
     new RandomImage('python-plotter'),
 ]
 
