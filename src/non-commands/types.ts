@@ -1,8 +1,8 @@
+import { DocumentType } from '@typegoose/typegoose'
 import { Message } from 'discord.js'
 import { GuildSettings, GuildSettingsModel } from '../database/models/settings'
 import { BooleanExact } from '../tools/throwingArgparse'
 import { PromiseOrNot } from '../tools/types'
-import { DocumentType } from '@typegoose/typegoose'
 
 export type NonHandlerContext = {
     settings: DocumentType<GuildSettings>
@@ -10,6 +10,7 @@ export type NonHandlerContext = {
 
 export abstract class NonHandler {
 
+    protected readonly defaultEnabled: boolean = true
     readonly abstract name: string
 
     constructor() { }
@@ -38,7 +39,7 @@ export abstract class NonHandler {
     }
 
     protected isEnabled(settings: DocumentType<GuildSettings>): boolean {
-        return settings.getSingleOption(this.settingsKey('enabled'), BooleanExact(), true)
+        return settings.getSingleOption(this.settingsKey('enabled'), BooleanExact(), this.defaultEnabled)
     }
 
     protected abstract _execute(message: Message, context: NonHandlerContext): PromiseOrNot<boolean>

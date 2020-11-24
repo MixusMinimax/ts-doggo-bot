@@ -10,5 +10,8 @@
         },
         "description": "A simple bot with not much unctionality (yet!)"
     },
-    "doggos": "assets/images/doggos"
+    "imgur": {
+        "doggo": "f7ydhIs",
+        "python-plotter": "OQzFnDx"
+    }
 }
