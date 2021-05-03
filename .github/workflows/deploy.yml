@@ -128,4 +128,4 @@ jobs:
             docker pull $IMAGE_ID:$VERSION
             docker run -d \
             --restart always \
-            --name $(echo $${{ $IMAGE_ID:$VERSION }})
+            --name $IMAGE_ID:$VERSION
