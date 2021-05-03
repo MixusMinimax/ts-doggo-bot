@@ -32,6 +32,7 @@ jobs:
   # This workflow contains a single job called "build"
   test:
     runs-on: ubuntu-latest
+    environment: ts-doggo-bot
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -56,6 +57,7 @@ jobs:
   push:
     needs: test
     runs-on: ubuntu-latest
+    environment: ts-doggo-bot
     permissions:
       packages: write
       contents: read
