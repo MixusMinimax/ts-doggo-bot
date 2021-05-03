@@ -144,9 +144,9 @@ jobs:
             docker run -d \
             --restart always \
             --name $IMAGE_NAME \
-            --env DISCORD_TOKEN=${DISCORD_TOKEN} \
-            --env IMGUR_CLIENT_ID=${IMGUR_CLIENT_ID} \
-            --env IMGUR_CLIENT_SECRET=${IMGUR_CLIENT_SECRET} \
-            --env MONGO_URL=${MONGO_URL} \
-            --env OWNER_TAG=${OWNER_TAG} \
+            --env DISCORD_TOKEN="${DISCORD_TOKEN}" \
+            --env IMGUR_CLIENT_ID="${IMGUR_CLIENT_ID}" \
+            --env IMGUR_CLIENT_SECRET="${IMGUR_CLIENT_SECRET}" \
+            --env MONGO_URL="${MONGO_URL}" \
+            --env OWNER_TAG="${OWNER_TAG}" \
             $IMAGE_ID:$VERSION
