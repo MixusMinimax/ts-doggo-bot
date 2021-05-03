@@ -42,6 +42,7 @@ export class AliasHandler extends Handler {
                 getter: (key: string) => settings.getOption(key, [String]) as string[],
                 page,
                 pageLength,
+                highlighting: 'yml',
                 searchTerm: [`${ALIAS_PREFIX}.${aliasName}`],
                 formatter: (
                     key: { key: string, similarity?: number }, _value: string[]

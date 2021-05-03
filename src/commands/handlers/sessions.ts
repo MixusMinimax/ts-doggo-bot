@@ -76,6 +76,7 @@ class SessionsShowHandler extends SubHandler {
                     getter: (key) => runningSessions.get(joinedSessions.get(key)!)!,
                     page,
                     pageLength,
+                    highlighting: 'js',
                     formatter: (
                         key: { key: string, similarity?: number }, value: Session
                     ) => nameDescription(

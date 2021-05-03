@@ -48,6 +48,7 @@ class SettingsListHandler extends SubHandler {
             page,
             pageLength,
             searchTerm,
+            highlighting: 'yml',
             formatter: (
                 key: { key: string, similarity?: number }, value: string[]
             ) => nameDescription(key.key, arrayToString(value), {

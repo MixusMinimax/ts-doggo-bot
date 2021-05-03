@@ -213,14 +213,16 @@ export function pager<T>(
         searchTerm = [],
         /** This starts at one! */
         page,
-        pageLength
+        pageLength,
+        highlighting = '',
     }: {
         keys: string[],
         getter: (key: string) => T,
         formatter: (key: { key: string, similarity?: number }, value: T) => string,
         searchTerm?: string[],
         page: number,
-        pageLength: number
+        pageLength: number,
+        highlighting?: string
     }
 ): {
     lineCount: number,
@@ -262,7 +264,7 @@ export function pager<T>(
             }/${Math.ceil(allLength / pageLength)
             }\`, Results \`${page * pageLength + 1
             }-${page * pageLength + keysOnPage.length
-            }/${allLength}\`\n\`\`\`${keysOnPage.map(key => {
+            }/${allLength}\`\n\`\`\`${highlighting}\n${keysOnPage.map(key => {
                 return formatter(key, getter(key.key))
             }
             ).join('\n')
