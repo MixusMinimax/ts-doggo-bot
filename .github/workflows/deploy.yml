@@ -114,6 +114,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
+          script_stop: true
           envs: |
             IMAGE_NAME,
             DISCORD_TOKEN,
@@ -138,8 +139,6 @@ jobs:
             if [ "$(docker ps -q -f name=$IMAGE_NAME)" ]; then
               docker rm -f $IMAGE_NAME
             fi
-
-            echo "OWNER_TAG=$OWNER_TAG"
 
             docker pull $IMAGE_ID:$VERSION
             docker run -d \
