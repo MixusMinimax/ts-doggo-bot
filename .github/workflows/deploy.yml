@@ -33,6 +33,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     environment: ts-doggo-bot
+    permissions:
+      contents: read
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -44,10 +46,6 @@ jobs:
           node-version: 15.12
       
       - run: npm install
-
-      - run: echo "OWNER_TAG=${OWNER_TAG}"
-        env:
-          OWNER_TAG: ${{ secrets.OWNER_TAG }}
 
       - name: Run Tests
         run: npm test
@@ -88,3 +86,21 @@ jobs:
           echo VERSION=$VERSION
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+  
+  deploy:
+    needs: push
+    runs-on: ubuntu-latest
+    environment: ts-doggo-bot
+    permissions:
+      packages: read
+    
+    steps:
+      - name: Deploy to Digital Ocean using ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            whoami
