@@ -44,8 +44,12 @@ jobs:
       
       - run: npm install
 
+      - run: echo "OWNER_TAG=${OWNER_TAG}"
+        env:
+          OWNER_TAG: ${{ secrets.OWNER_TAG }}
+
       - name: Run Tests
-        run: export MONGO_URI && npm test
+        run: npm test
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
 
