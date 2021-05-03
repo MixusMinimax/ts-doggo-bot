@@ -104,11 +104,11 @@ jobs:
       - name: Deploy to Digital Ocean using ssh
         uses: appleboy/ssh-action@master
         env:
-          DISCORD_TOKEN: {{ secrets.DISCORD_TOKEN }}
-          IMGUR_CLIENT_ID: {{ secrets.IMGUR_CLIENT_ID }}
-          IMGUR_CLIENT_SECRET: {{ secrets.IMGUR_CLIENT_SECRET }}
-          MONGO_URL: {{ secrets.MONGO_URL }}
-          OWNER_TAG: {{ secrets.OWNER_TAG }}
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          IMGUR_CLIENT_ID: ${{ secrets.IMGUR_CLIENT_ID }}
+          IMGUR_CLIENT_SECRET: ${{ secrets.IMGUR_CLIENT_SECRET }}
+          MONGO_URL: ${{ secrets.MONGO_URL }}
+          OWNER_TAG: ${{ secrets.OWNER_TAG }}
         with:
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
