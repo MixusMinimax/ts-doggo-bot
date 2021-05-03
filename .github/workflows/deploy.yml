@@ -114,7 +114,6 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          script_stop: true
           envs: |
             IMAGE_NAME,
             DISCORD_TOKEN,
