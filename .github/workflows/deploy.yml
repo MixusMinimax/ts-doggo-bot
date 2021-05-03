@@ -103,12 +103,24 @@ jobs:
 
       - name: Deploy to Digital Ocean using ssh
         uses: appleboy/ssh-action@master
+        env:
+          DISCORD_TOKEN: {{ secrets.DISCORD_TOKEN }}
+          IMGUR_CLIENT_ID: {{ secrets.IMGUR_CLIENT_ID }}
+          IMGUR_CLIENT_SECRET: {{ secrets.IMGUR_CLIENT_SECRET }}
+          MONGO_URL: {{ secrets.MONGO_URL }}
+          OWNER_TAG: {{ secrets.OWNER_TAG }}
         with:
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          envs: IMAGE_NAME
+          envs: |
+            IMAGE_NAME,
+            DISCORD_TOKEN,
+            IMGUR_CLIENT_ID,
+            IMGUR_CLIENT_SECRET,
+            MONGO_URL,
+            OWNER_TAG
           script: |
             IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
 
@@ -123,9 +135,6 @@ jobs:
             echo IMAGE_ID=$IMAGE_ID
             echo VERSION=$VERSION
 
-            docker stop $IMAGE_NAME
-            docker rm $IMAGE_NAME
-
             if [ ! "$(docker ps -q -f name=$IMAGE_NAME)" ]; then
               if [ "$(docker ps -aq -f status=running -f name=$IMAGE_NAME)" ]; then
                 docker stop $IMAGE_NAME
@@ -137,4 +146,9 @@ jobs:
             docker run -d \
             --restart always \
             --name $IMAGE_NAME \
+            --env DISCORD_TOKEN \
+            --env IMGUR_CLIENT_ID \
+            --env IMGUR_CLIENT_SECRET \
+            --env MONGO_URL \
+            --env OWNER_TAG \
             $IMAGE_ID:$VERSION
