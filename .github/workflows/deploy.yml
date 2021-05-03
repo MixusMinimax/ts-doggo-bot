@@ -107,7 +107,7 @@ jobs:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           IMGUR_CLIENT_ID: ${{ secrets.IMGUR_CLIENT_ID }}
           IMGUR_CLIENT_SECRET: ${{ secrets.IMGUR_CLIENT_SECRET }}
-          MONGO_URL: ${{ secrets.MONGO_URL }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
           OWNER_TAG: ${{ secrets.OWNER_TAG }}
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -119,7 +119,7 @@ jobs:
             DISCORD_TOKEN,
             IMGUR_CLIENT_ID,
             IMGUR_CLIENT_SECRET,
-            MONGO_URL,
+            MONGO_URI,
             OWNER_TAG
           script: |
             IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
@@ -146,6 +146,6 @@ jobs:
             --env DISCORD_TOKEN="${DISCORD_TOKEN}" \
             --env IMGUR_CLIENT_ID="${IMGUR_CLIENT_ID}" \
             --env IMGUR_CLIENT_SECRET="${IMGUR_CLIENT_SECRET}" \
-            --env MONGO_URL="${MONGO_URL}" \
+            --env MONGO_URI="${MONGO_URI}" \
             --env OWNER_TAG="${OWNER_TAG}" \
             $IMAGE_ID:$VERSION
