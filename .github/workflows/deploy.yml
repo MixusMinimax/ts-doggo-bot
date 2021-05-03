@@ -135,7 +135,7 @@ jobs:
             echo IMAGE_ID=$IMAGE_ID
             echo VERSION=$VERSION
 
-            if [ ! "$(docker ps -q -f name=$IMAGE_NAME)" ]; then
+            if [ "$(docker ps -q -f name=$IMAGE_NAME)" ]; then
               if [ "$(docker ps -aq -f status=running -f name=$IMAGE_NAME)" ]; then
                 docker stop $IMAGE_NAME
               fi
