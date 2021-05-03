@@ -11,4 +11,4 @@ RUN npm install
 
 COPY --chown=node:node . .
 
-CMD [ "echo", "$OWNER_TAG" ]
+CMD echo $OWNER_TAG
