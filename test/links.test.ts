@@ -1,6 +1,6 @@
 import { mongoose } from '@typegoose/typegoose'
 import { expect } from 'chai'
-import * as database from '../src/database/database'
+import * as database from '../src/database'
 import { LinkLists } from '../src/database/models/links'
 
 async function getLinksFresh() {
