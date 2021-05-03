@@ -3,7 +3,7 @@ import { Guild, GuildMember, Message, User } from 'discord.js'
 import { GuildSettingsModel } from '../../database/models/settings'
 import { tryFindMember } from '../../tools/discord.utils'
 import { reply } from '../../tools/string.utils'
-import ThrowingArgumentParser, { NumberRange } from '../../tools/throwingArgparse'
+import { NumberRange, ThrowingArgumentParser } from '../../tools/throwingArgparse'
 import { Handler, HandlerContext } from '../types'
 
 /* Settings keys: */

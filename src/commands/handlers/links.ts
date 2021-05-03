@@ -4,7 +4,7 @@ import { LinkLists } from '../../database/models/links'
 import { GuildSettingsModel } from '../../database/models/settings'
 import { dlog } from '../../tools/log'
 import { reply, singularPlural } from '../../tools/string.utils'
-import ThrowingArgumentParser, { NumberRange } from '../../tools/throwingArgparse'
+import { NumberRange, ThrowingArgumentParser } from '../../tools/throwingArgparse'
 import { HandlerContext, ParentHandler, SubHandler } from '../types'
 import { assertPermission } from './permission'
 

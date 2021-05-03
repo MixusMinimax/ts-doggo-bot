@@ -2,7 +2,7 @@ import { Const } from 'argparse'
 import { Guild, Message } from 'discord.js'
 import { GuildSettingsModel } from '../../database/models/settings'
 import { arrayToString, nameDescription, pager, reply } from '../../tools/string.utils'
-import ThrowingArgumentParser, { ArgumentParseError, NumberRange } from '../../tools/throwingArgparse'
+import { ArgumentParseError, NumberRange, ThrowingArgumentParser } from '../../tools/throwingArgparse'
 import { Handler, HandlerContext } from '../types'
 
 const ALIAS_BYPASS = 'command'

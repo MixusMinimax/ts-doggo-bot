@@ -91,8 +91,8 @@ export async function handle(
                         return `> ${error.message}`
                     } else if (error instanceof PrintHelpError) {
                         return reply(message,
-                            `> Help for the command \`${error.prog}\`:\n`
-                            + '```\n' + error.message + '\n```'
+                            `> Help for the command \`${config.prefix}${handler.prog}\`:\n`
+                            + '```yml\n' + error.handler.formatHelp({ command: error.words }) + '\n```'
                         )
                     } else if (error instanceof PermissionError) {
                         return reply(

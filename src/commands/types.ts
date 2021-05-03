@@ -2,7 +2,7 @@ import argparse from 'argparse'
 import { Message } from 'discord.js'
 import config from '../../config/config.json'
 import { nameDescription } from '../tools/string.utils'
-import ThrowingArgumentParser from '../tools/throwingArgparse'
+import {ThrowingArgumentParser} from '../tools/throwingArgparse'
 import { CommandNotFoundError, Indexable, PromiseOrNot } from '../tools/types'
 
 export class HandlerSettings implements Indexable<any> {
@@ -22,7 +22,7 @@ export abstract class Handler {
     abstract description: string
 
     constructor(prog: string) {
-        this.prog = config.prefix + prog
+        this.prog = prog
     }
 
     abstract execute(args: any, body: string, message: Message, context: HandlerContext): PromiseOrNot<void | string>
@@ -30,8 +30,9 @@ export abstract class Handler {
     defineArguments(_parser: ThrowingArgumentParser): void { }
 
     get parser() {
-        const _parser = new ThrowingArgumentParser({
-            prog: this.prog,
+        const _parser = ThrowingArgumentParser.create({
+            handler: this,
+            prog: config.prefix + this.prog,
             description: this.description,
         })
         this.defineArguments(_parser)
@@ -71,20 +72,23 @@ export abstract class ParentHandler extends Handler {
     }
 
     get parser() {
-        const _parser = new ThrowingArgumentParser({
-            prog: this.prog,
-            description: this.description,
-            usage: [
-                `${this.prog} <command> [<args>]`,
-                '',
-                ...Object.entries(this.subHandlers).map(([name, { description }]) => {
-                    return nameDescription(name, description, {
-                        tab: 14,
-                        prefix: '  ',
+        const _parser = ThrowingArgumentParser.create(
+            {
+                handler: this,
+                prog: config.prefix + this.prog,
+                description: this.description,
+                usage: [
+                    `${config.prefix}${this.prog} <command> [<args>]`,
+                    '',
+                    ...Object.entries(this.subHandlers).map(([name, { description }]) => {
+                        return nameDescription(name, description, {
+                            tab: 14,
+                            prefix: '  ',
+                        })
                     })
-                })
-            ].join('\n')
-        })
+                ].join('\n')
+            }
+        )
         _parser.addArgument('command', {
             help: 'Subcommand to run',
             nargs: argparse.Const.REMAINDER,
@@ -93,8 +97,8 @@ export abstract class ParentHandler extends Handler {
         return _parser
     }
 
-    formatHelp(args?: any): string {
-        const subCommand = args?.command?.[0]
+    formatHelp(args?: { command?: string[] }): string {
+        const subCommand = args?.command?.shift()
         if (subCommand) {
             const subHandler = this.subHandlers[subCommand]
             if (subHandler) {
@@ -111,6 +115,5 @@ export abstract class ParentHandler extends Handler {
 export abstract class IntermediateHandler extends ParentHandler implements SubHandler {
     constructor(parent: string, sub: string) {
         super(parent + ' ' + sub)
-        this.prog = this.prog.replace(config.prefix, '')
     }
 }

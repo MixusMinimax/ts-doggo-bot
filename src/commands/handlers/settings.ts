@@ -2,7 +2,7 @@ import { Const } from 'argparse'
 import { Message } from 'discord.js'
 import { GuildSettingsModel } from '../../database/models/settings'
 import { arrayToString, nameDescription, padStart, pager, reply } from '../../tools/string.utils'
-import ThrowingArgumentParser, { NumberRange } from '../../tools/throwingArgparse'
+import { NumberRange, ThrowingArgumentParser } from '../../tools/throwingArgparse'
 import { HandlerContext, ParentHandler, SubHandler } from '../types'
 import { assertPermission } from './permission'
 

@@ -1,28 +1,53 @@
-import { ArgumentParser, ArgumentParserOptions } from 'argparse'
+import { Action, ArgumentParser, ArgumentParserOptions, Const, Namespace } from 'argparse'
+import { Handler } from '../commands/types'
 import { dlog } from './log'
 import { padStart } from './string.utils'
 
 export class ArgumentParseError extends Error { }
 
 export class PrintHelpError extends Error {
-    prog: string | undefined
-
-    constructor(prog: string | undefined, message: string) {
-        super(message)
-        this.prog = prog
+    handler: Handler
+    words: string[]
+    constructor(handler: Handler, words: string[]) {
+        super()
+        this.handler = handler
+        this.words = words
     }
 }
 
-export default class ThrowingArgumentParser extends ArgumentParser {
+function createPrintHelpAction(handler: Handler) {
+    class PrintHelpAction extends Action {
+        call(parser: ArgumentParser, namespace: Namespace, values: string[]): void {
+            console.log(namespace)
+            throw new PrintHelpError(handler, values)
+        }
+    }
+    return PrintHelpAction
+}
 
+export class ThrowingArgumentParser extends ArgumentParser {
+
+    handler!: Handler
     description?: string
     prog?: string
 
-    constructor(args: ArgumentParserOptions = {}) {
-        dlog('ARGPARSE', args)
+    private constructor(args: ArgumentParserOptions) {
         super(args)
-        this.prog = args.prog
-        this.description = args.description
+    }
+
+    static create(args: ArgumentParserOptions & { handler: Handler }): ThrowingArgumentParser {
+        dlog('ARGPARSE', args)
+        const ret = new ThrowingArgumentParser({ ...args, addHelp: false })
+        ret.handler = args.handler
+        if (args.addHelp !== false) {
+            ret.addArgument(['-h', '--help'], {
+                action: createPrintHelpAction(ret.handler),
+                nargs: Const.ZERO_OR_MORE
+            })
+        }
+        ret.prog = args.prog
+        ret.description = args.description
+        return ret
     }
 
     error(err: string | Error) {
@@ -34,7 +59,7 @@ export default class ThrowingArgumentParser extends ArgumentParser {
     }
 
     printHelp() {
-        throw new PrintHelpError(this.prog, this.formatHelp())
+        throw new PrintHelpError(this.handler, [])
     }
 }
 
