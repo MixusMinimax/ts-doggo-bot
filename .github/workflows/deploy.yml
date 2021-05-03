@@ -45,11 +45,12 @@ jobs:
       - run: npm install
 
       - name: Run Tests
-        run: npm test
+        run: export MONGO_URI && npm test
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
 
   push:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       packages: write
