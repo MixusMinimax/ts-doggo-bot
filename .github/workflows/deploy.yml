@@ -115,8 +115,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           envs: |
-            DISCORD_TOKEN,
             IMAGE_NAME,
+            DISCORD_TOKEN,
             IMGUR_CLIENT_ID,
             IMGUR_CLIENT_SECRET,
             MONGO_URL,
@@ -138,6 +138,8 @@ jobs:
             if [ "$(docker ps -q -f name=$IMAGE_NAME)" ]; then
               docker rm -f $IMAGE_NAME
             fi
+
+            echo "OWNER_TAG=$OWNER_TAG"
 
             docker pull $IMAGE_ID:$VERSION
             docker run -d \
