@@ -47,7 +47,7 @@ jobs:
       - name: Run Tests
         run: npm test
         env:
-          MONGO_URI: {{ secrets.MONGO_URI }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
 
   push:
     runs-on: ubuntu-latest
