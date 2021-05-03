@@ -1,6 +1,5 @@
 import { Client } from 'discord.js'
 import { exit } from 'process'
-import config from '../config/config.json'
 import * as commands from './commands'
 import * as database from './database'
 import { dlog } from './tools/log'

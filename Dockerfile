@@ -11,4 +11,4 @@ RUN npm install
 
 COPY --chown=node:node . .
 
-CMD [ "/usr/bin/bash", "-c", "echo $OWNER_TAG" ]
+CMD [ "npm", "start" ]
