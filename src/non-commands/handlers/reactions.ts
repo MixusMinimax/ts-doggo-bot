@@ -28,7 +28,7 @@ export class Reactions extends NonHandler {
             else
                 console.error('Emoji "boiiiiii" not found!')
         }
-        else if (message.content.toLowerCase().match(/(?:^|\W)sus(?:$|\W)|amogus|among us|amongus/)) {
+        else if (message.content.toLowerCase().match(/(?:^|\W)(?:sus|amon?gus|among us|impost[oe]r)(?:$|\W)|^(?:\w+\W)?\w*sus(?:\W\w+\W?)?$/)) {
             const emoji = message.guild!.emojis.cache.find(x => x.name === 'amogus')
             if (emoji != null)
                 message.react(emoji)
