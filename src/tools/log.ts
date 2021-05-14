@@ -23,7 +23,7 @@ const filter: IFilter = {
     HANDLER: {
         default: {
             default: true,
-            args: false
+            args: false,
         },
         links: {
             default: true,
@@ -32,6 +32,11 @@ const filter: IFilter = {
         },
         permission: {
             default: true,
+        },
+        eval: {
+            default: true,
+            codeBlocks: false,
+            transpiled: true,
         },
         help: true,
     },
@@ -68,7 +73,7 @@ export function isEnabled(tag: string): { enabled: boolean, newTag: string } {
 export function dformat(tag: string, message?: any, {
     tab = 28,
     repeat = '.',
-    delims = [' ', ' ']
+    delims = [' ', '']
 }: {
     tab?: number,
     repeat?: string,
@@ -80,22 +85,22 @@ export function dformat(tag: string, message?: any, {
         const paddingLength = tab - offset - delims[1].length
         const paddingTemplate = repeat.repeat(tab)
         const padding = delims[0] + paddingTemplate.substr(offset, paddingLength) + delims[1]
-        return (`[${newTag}]${padding}${message}`)
+        return (`[${newTag}]${padding}`)
     }
     return false
 }
 
-export function dPrintToStream(cb: (message?: any, ...optionalParams: any[]) => void, tag: string, message?: any, ...optionalParams: any[]) {
-    const result = dformat(tag, message)
+export function dPrintToStream(cb: (...args: any[]) => void, tag: string, ...args: any[]) {
+    const result = dformat(tag)
     if (result !== false) {
-        cb(result, ...optionalParams)
+        cb(result, ...args)
     }
 }
 
-export function dlog(tag: string, message?: any, ...optionalParams: any[]) {
-    dPrintToStream(console.log, tag, message, ...optionalParams)
+export function dlog(tag: string, ...args: any[]) {
+    dPrintToStream(console.log, tag, ...args)
 }
 
-export function derror(tag: string, message?: any, ...optionalParams: any[]) {
-    dPrintToStream(console.error, tag, message, ...optionalParams)
+export function derror(tag: string, ...args: any[]) {
+    dPrintToStream(console.error, tag, ...args)
 }

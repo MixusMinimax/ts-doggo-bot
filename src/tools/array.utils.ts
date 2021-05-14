@@ -71,3 +71,10 @@ function removeAt<T>(initial: T[], indices: number[]): ArrayUpdateResult<T> {
         removedIndices: indices
     }
 }
+
+
+export function takeRange<T>(arr: T[], start: number, count: number): T[] {
+    let end: number | undefined = start + count
+    if (start < 0 && end >= 0) end = undefined
+    return arr.slice(start, end)
+}

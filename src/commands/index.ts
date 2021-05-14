@@ -3,8 +3,8 @@ import config from '../../config/config.json'
 import { dlog } from '../tools/log'
 import parseMessage from '../tools/messageParser'
 import { reply } from '../tools/string.utils'
-import { PrintHelpError } from '../tools/throwingArgparse'
-import { ClearTextError, CommandNotFoundError, Indexable, PermissionLevelException } from '../tools/types'
+import { PrintHelpException } from '../tools/throwingArgparse'
+import { ClearTextError, CommandNotFoundError, Indexable } from '../tools/types'
 import { AliasHandler } from './handlers/alias'
 import { EchoHandler } from './handlers/echo'
 import { HelpHandler } from './handlers/help'
@@ -20,6 +20,7 @@ import { SettingsHandler } from './handlers/settings'
 import { TimeHandler } from './handlers/time'
 import { Handler } from './types'
 import * as nonCommands from '../non-commands'
+import { EvalHandler } from './handlers/eval'
 
 export const handlers = {
     info: new InfoHandler('info'),
@@ -34,6 +35,8 @@ export const handlers = {
     settings: new SettingsHandler('settings'),
     alias: new AliasHandler('alias'),
     sessions: new SessionsHandler('sessions'),
+
+    // eval: new EvalHandler('eval'),
 
     echo: new EchoHandler('echo'),
 }
@@ -69,7 +72,7 @@ export async function handle(
                     try {
                         const args = handler.parser.parseKnownArgs(tokens)
 
-                        dlog('HANDLER..args', `${args}`)
+                        dlog('HANDLER..args', '', args)
 
                         return (await handler.execute(args[0], body, message, {
                             handlers,
@@ -86,10 +89,7 @@ export async function handle(
                 } catch (error) {
                     if (error instanceof CommandNotFoundError) {
                         throw error
-                    }
-                    else if (error instanceof PermissionLevelException) {
-                        return `> ${error.message}`
-                    } else if (error instanceof PrintHelpError) {
+                    } else if (error instanceof PrintHelpException) {
                         return reply(message,
                             `> Help for the command \`${config.prefix}${handler.prog}\`:\n`
                             + '```yml\n' + error.handler.formatHelp({ command: error.words }) + '\n```'

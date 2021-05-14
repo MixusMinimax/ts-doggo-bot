@@ -5,7 +5,7 @@ import { padStart } from './string.utils'
 
 export class ArgumentParseError extends Error { }
 
-export class PrintHelpError extends Error {
+export class PrintHelpException extends Error {
     handler: Handler
     words: string[]
     constructor(handler: Handler, words: string[]) {
@@ -19,7 +19,7 @@ function createPrintHelpAction(handler: Handler) {
     class PrintHelpAction extends Action {
         call(parser: ArgumentParser, namespace: Namespace, values: string[]): void {
             console.log(namespace)
-            throw new PrintHelpError(handler, values)
+            throw new PrintHelpException(handler, values)
         }
     }
     return PrintHelpAction
@@ -59,7 +59,7 @@ export class ThrowingArgumentParser extends ArgumentParser {
     }
 
     printHelp() {
-        throw new PrintHelpError(this.handler, [])
+        throw new PrintHelpException(this.handler, [])
     }
 }
 

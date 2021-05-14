@@ -179,11 +179,11 @@ export function nameDescription(name: string, description: string, {
     return result
 }
 
-export function reply(user: User | Message, message: string, args: { delim?: string } = {}): string {
+export function reply(user: User | Message, message?: string, args: { delim?: string } = {}): string {
     if (user instanceof Message) {
         user = user.author
     }
-    return `<@${user.id}>${args.delim || '\n'}${message}`
+    return `<@${user.id}>${(args.delim !== undefined ? args.delim : '\n')}${message || ''}`
 }
 
 export function singularPlural(amount: number, singular: string, plural?: string) {
@@ -270,4 +270,37 @@ export function pager<T>(
             ).join('\n')
             }\`\`\``
     }
+}
+
+export function extractBlocks(text: string): { text: string, language?: string }[] {
+
+    function languages(l?: string): string | undefined {
+        switch (l) {
+            case 'typescript':
+                return 'ts'
+            case 'javascript':
+                return 'js'
+            default:
+                return l
+        }
+    }
+
+    let regex = /```(?:([^ \n]+)\n)?((?:.|\n)*?)```/g
+    let matches: RegExpExecArray | null;
+    let output: ReturnType<typeof extractBlocks> = []
+    while (matches = regex.exec(text)) {
+        output.push({ text: matches[2], language: languages(matches[1]) })
+    }
+    return output
+}
+
+export function combineParagraphs(maxLength: number, paragraphs: string[]): string[] {
+    let result: string[] = []
+    paragraphs.forEach(p => {
+        if (result.length === 0 || (result[result.length - 1].length + p.length) > maxLength)
+            result.push(p)
+        else
+            result[result.length - 1] += p
+    })
+    return result
 }

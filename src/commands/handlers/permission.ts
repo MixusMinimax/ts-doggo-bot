@@ -23,6 +23,11 @@ export class PermissionError extends Error {
     }
 }
 
+/**
+ * @param actual 0-10
+ * @param required 0-10
+ * @throws PermissionLevelException if `required` > `actual`
+ */
 export function assertPermission(actual: number, required: number, msg?: string): void | never {
     if (actual < required) {
         throw new PermissionError(actual, required, msg)

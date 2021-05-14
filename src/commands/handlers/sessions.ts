@@ -1,16 +1,13 @@
-import { types } from '@typegoose/typegoose'
 import { Const } from 'argparse'
-import { Guild, GuildMember, Message, MessageEmbed, TextChannel, User } from 'discord.js'
-import { join } from 'path'
-import { isIdentifier, Type, TypeOfExpression } from 'typescript'
+import { Guild, Message, TextChannel, User } from 'discord.js'
 import { GuildSettingsModel } from '../../database/models/settings'
-import { findMembers, tryFindMember } from '../../tools/discord.utils'
+import { findMembers } from '../../tools/discord.utils'
 import { dlog } from '../../tools/log'
-import { arrayToString, nameDescription, padStart, pager, reply } from '../../tools/string.utils'
+import { nameDescription, pager, reply } from '../../tools/string.utils'
 import { NumberRange, ThrowingArgumentParser } from '../../tools/throwingArgparse'
-import { checkPermission, FilterType, Indexable, PromiseOrNot } from '../../tools/types'
+import { FilterType, PromiseOrNot } from '../../tools/types'
 import { HandlerContext, ParentHandler, SubHandler } from '../types'
-import { assertPermission, PermissionHandler } from './permission'
+import { assertPermission } from './permission'
 
 const PATH_REQUIRED_LEVEL_TO_VIEW = 'permissions.handlers.sessions.view'
 const DEFAULT_REQUIRED_LEVEL_TO_VIEW = 5
@@ -304,7 +301,7 @@ export async function joinSession(message: Message, id: BigInt, permissionLevel:
     }
     const session = runningSessions.get(id)!
 
-    checkPermission(
+    assertPermission(
         session.requiredPermissionLevel,
         permissionLevel
     )
